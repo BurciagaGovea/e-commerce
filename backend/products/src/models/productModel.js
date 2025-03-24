@@ -21,6 +21,10 @@ const Product = sequelize.define(
             type: DataTypes.DECIMAL(10,2),
             allowNull: false
         },
+        url: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         // category_id: {
         //     type: DataTypes.INTEGER,
         //     allowNull: false
