@@ -2,6 +2,12 @@
 node_modules/
 package-lock.json
 
+
+#_______EL JSON CON LA API KEY DE DRIVE POR QUE GIT ES CHIPIL
+
+drive_storage.json
+
+
 # Environment variables
 .env
 

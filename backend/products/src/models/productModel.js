@@ -31,7 +31,9 @@ const Product = sequelize.define(
         // }
     },
     {
-        tableName: "products"
+        tableName: "products",
+        //para que no cree columnas de mas en auto
+        timestamps: false  
     }
 );
 export default Product;
