@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import Home from "../screens/Home";
 import ProductList from "../screens/ProductList";
-import Cart from "../screens/Cart";
+//import Cart from "../screens/Cart";
 import Profile from "../screens/Profile";
 import Charge from "../screens/Charge"; // Asegúrate de que este componente es válido
 
@@ -30,7 +30,7 @@ const TabNavigator = () => {
                     const icons = {
                         Home: "home-outline",
                         ProductList: "list-outline",
-                        Cart: "cart-outline",
+                        //Cart: "cart-outline",
                         Profile: "person-outline",
                     };
                     return <Ionicons name={icons[route.name]} size={size} color={color} />;
@@ -43,7 +43,6 @@ const TabNavigator = () => {
         >
             <Tab.Screen name="Home" component={Home} />
             <Tab.Screen name="ProductList" component={ProductList} />
-            <Tab.Screen name="Cart" component={Cart} />
             <Tab.Screen name="Profile" component={Profile} />
         </Tab.Navigator>
     );
