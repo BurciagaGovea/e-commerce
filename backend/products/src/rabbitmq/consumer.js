@@ -3,9 +3,21 @@ import dotenv from "dotenv";
 import { models } from "../models/index.js";
 const { Category, Product, Inventory } = models;
 
+//SOLO LO MODIFIQUE PARA PODER APAGAR RABIT PARA PROBAR LO DE DRIVE_______
+
 dotenv.config();
 
+//____________________________________________________________1
+const RABBIT_ENABLED = process.env.RABBIT_ENABLED === 'true';
+//____________________________________________________________1
+
 export async function consumerOrder() {
+
+    //_________________________Cambio 1
+    if(!RABBIT_ENABLED) return;
+    //_________________________Cambio 1
+
+
     const exchange = "orders_exchange";
     const queue = "orders_created"
 
@@ -27,6 +39,13 @@ export async function consumerOrder() {
 };
 
 export async function sendPrices() {
+
+
+    //_________________________Cambio 2
+    if(!RABBIT_ENABLED) return;
+    //_________________________Cambio 2
+
+
     const exchange = "product_price";
     const queue = "prices_queue"
 
