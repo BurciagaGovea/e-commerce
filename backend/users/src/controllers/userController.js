@@ -1,62 +1,101 @@
 import retryAsPromised from "retry-as-promised";
 import User from "../models/userModel.js";
-import jwt from "jsonwebtoken";
+import { userService } from "../services/userService.js";
 
 export const getUsers = async (req, res) => {
     try {
-        const users = await User.findAll();
+        const users = await userService.getUsers();
         res.status(200).json(users);
-    } catch(err) {
-        console.error('Err gettting users: ', err);
-        res.status(500).json({Message: 'Unexpected error retrieving users'})
+    } catch (err) {
+        console.error('Error getting users: ', err);
+        res.status(500).json({ message: 'Unexpected error retrieving users' });
     }
-};  
+};
 
 export const getUserById = async (req, res) => {
+    const { id } = req.params;
     try {
-        const { id } = req.params;
-        const user = await User.findByPk(id);
+        const user = await userService.getUserById(id);
 
-        if(!user){
-            return res.status(404).json({ message: 'User not found'})
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        return res.status(200).json({user})
+        return res.status(200).json({ user });
 
-    } catch(err){
-        console.error('Error obtaining user: ', err)
-        return res.status(500).json({ message: 'Unexpected error'});
+    } catch (err) {
+        console.error('Error obtaining user: ', err);
+        return res.status(500).json({ message: 'Unexpected error' });
     }
 };
 
 export const createUser = async (req, res) => {
-    const { username, firstName, middleName, lastName, phone, password } = req.body;
+    const { user, client } = req.body;
+    try {
+        const { email, password, firstName, middleName, lastName, phone,  } = user;
+        if (!email || !firstName || !lastName || !phone || !password){
+            return res.status(400).json({message: 'Provide all info needed'});
+        }
+    
+        const data = await userService.createUser(user, client); //omfggggggggggggggggggggg {}{}{}{}}{}{}{}{}
 
-    if (!username || !firstName || !middleName || !lastName || !phone || !password){
-        return res.status(400).json({message: 'Provide all info needed'});
+        if (!data){
+            return res.status(400).json({
+                message: 'User already exists'
+            });
+        }
+
+        return res.status(200).json({
+            data
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({message: 'Unexpected erro'})
     }
+};
 
-    const userExists = await User.findOne( {where: {username}} );
-    if(userExists){
-        return res.staus(400).json({ message: 'Username already registered'});
-    }
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-    try{
-        const newUser = await User.create({
-            username,
-            firstName,
-            middleName,
-            lastName,
-            phone,
-            password
+        if (!email || !password) {
+            return res.status(400).json({ message: 'User and password needed' });
+        }
+
+        const loginResult = await userService.login(email, password);
+
+        if (!loginResult) {
+            return res.status(404).json({ message: 'Invalid credentials' });
+        }
+
+        return res.status(200).json({
+            message: `Login succesful: ${email}`,
+            token: loginResult.token
         });
 
-        console.log(newUser);
-        return res.status(201).json({ message: 'User created', info: newUser});
+    } catch (error) {
+        console.error('Error loggin in:', error);
+        return res.status(500).json({ message: 'Unexpected error' });
+    }
+};
 
-    } catch(err){
-        console.err('Err creating user: ', err);
-        return res.status(500).json({ message: 'Unexpected error: ', err});
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    try {
+        const result = await userService.forgotPassword(email);
+        if (!result) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json({ message: 'Password recovery email sent' });
+    } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        return res.status(500).json({ message: 'Unexpected error' });
     }
 };
 
@@ -64,17 +103,16 @@ export const deleteUser = async (req, res) => {
     const { id } = req.params;
     
     try{
-        const userToDelete = await User.findByPk(id);
-        if(!userToDelete){
-            return res.status(404).json({message: 'User not found'})
+        const result = await userService.deleteUser(id);
+        if (result === null){
+            return res.status(404).json({ message: 'User not found' });
+        } 
+
+        if (result === true) {
+            return res.status(200).json({ message: `User ${id} is already inactive` });
         }
 
-        if(!userToDelete.status){
-            return res.status(200).json({message: `User ${id} is already inactive`})
-        } 
-        userToDelete.status = false;
-        await userToDelete.save();
-        return res.status(200).json({message: `User ${id} is now inactive`})
+        return res.status(200).json({ message: `User ${id} is now inactive` });
 
     } catch(err) {
         console.error('Err deleting user: ', err);

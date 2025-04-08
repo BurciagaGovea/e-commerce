@@ -10,6 +10,12 @@ const Client = sequelize.define(
             autoIncrement: true,
         },
 
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true,
+        },
+
         firstName: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -17,7 +23,7 @@ const Client = sequelize.define(
 
         middleName: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
 
         lastName: {
@@ -36,7 +42,7 @@ const Client = sequelize.define(
 
         phone: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
             unique: true,
         },
 
@@ -62,7 +68,7 @@ const Client = sequelize.define(
         },
 
         number: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(10),
             allowNull: false,
         } 
     },

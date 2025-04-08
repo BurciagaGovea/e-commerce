@@ -7,10 +7,114 @@ services:
       RABBITMQ_DEFAULT_USER: "user"
       RABBITMQ_DEFAULT_PASS: "pass"
     ports:
-      - "5672:5672"  # Puerto para la comunicación con RabbitMQ
-      - "15672:15672" # Interfaz web de administración
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - e-commerce
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    ports:
+      - "3307:3306"
+    networks:
+      - e-commerce
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  clients:
+    build: ./clients
+    container_name: clients_service
+    restart: always
+    ports:
+      - "3001:3000"
+    env_file:
+    - ./.env
+    networks:
+      - e-commerce
+    depends_on:
+      - rabbitmq
+      - mysql
+
+  email:
+    build: ./email
+    container_name: email_service
+    restart: always
+    ports:
+      - "3002:3000"
+    env_file:
+    - ./.env
+    networks:
+      - e-commerce
+    depends_on:
+      - rabbitmq
+
+  orders:
+    build: ./orders
+    container_name: orders_service
+    restart: always
+    ports:
+      - "3003:3000"
+    env_file:
+    - ./.env
+    networks:
+      - e-commerce
+    depends_on:
+      - rabbitmq
+      - mysql
+
+  products:
+    build: ./products
+    container_name: products_service
+    restart: always
+    ports:
+      - "3004:3000"
+    env_file:
+    - ./.env
+    volumes:
+      - ./products/uploads:/app/uploads
+    networks:
+      - e-commerce
+    depends_on:
+      - rabbitmq
+      - mysql
+
+  users:
+    build: ./users
+    container_name: users_service
+    restart: always
+    ports:
+      - "3005:3000"
+    env_file:
+    - ./.env
+    networks:
+      - e-commerce
+    depends_on:
+      - rabbitmq
+      - mysql
+
+  esb:
+    build: ./esb
+    container_name: esb_service
+    restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      - e-commerce
+    depends_on:
+      - clients
+      - email
+      - orders
+      - products
+      - users
 
 networks:
   e-commerce:

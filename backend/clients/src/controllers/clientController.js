@@ -1,86 +1,81 @@
-import Client from "../models/clientModel.js";
 import { clientService } from "../services/clientService.js";
 
 export const getClients = async (req, res) => {
-    try{
+    try {
         const clients = await clientService.getClients();
-        // const clients = await Client.findAll();
-        // console.log(clients);
         return res.status(200).json(clients);
-    } catch(err){
-        console.error('Err obtaining clients: ', err)
-        return res.status(500).json({ message: 'Unexpected error'});
+    } catch (err) {
+        console.error('Err obtaining clients: ', err);
+        return res.status(500).json({ message: 'Unexpected error' });
     }
 };
 
 export const getClientsById = async (req, res) => {
-    try{
+    try {
         const { id } = req.params;
-        const client = await Client.findByPk(id);
+        const client = await clientService.getClientById(id);
 
-        if(!client){
-            return res.status(404).json({message: 'Client nor found'})
+        if (!client) {
+            return res.status(404).json({ message: 'Client not found' });
         }
-        return res.status(200).json(client)
 
-    } catch(err){
-        console.error('Err obtaining client: ', err)
-        return res.status(500).json({ message: 'Unexpected error'});
+        return res.status(200).json(client);
+    } catch (err) {
+        console.error('Err obtaining client: ', err);
+        return res.status(500).json({ message: 'Unexpected error' });
     }
 };
 
 export const createClient = async (req, res) => {
-    const { firstName, middleName, lastName, email, phone, birthDate, postCode, street, number } = req.body;
-    if( !firstName || !middleName || !lastName || !email || !phone || !birthDate || !postCode || !street || !number){
-        return res.status(400).json({ message: 'Provide all info needed'});
-    }
-    const clientExists = await Client.findOne( {where: {email}});
-    if(clientExists){
-        return res.status(400).json({ message: `Email ${email} already registered`});
+    const { firstName, middleName, lastName, email, phone, birthDate, postCode, street, number, userId } = req.body;
+
+    if (!firstName || !middleName || !lastName || !email || !phone || !birthDate || !postCode || !street || !number) {
+        return res.status(400).json({ message: 'Provide all info needed' });
     }
 
-    try{
-        const newClient = await Client.create(
-            {
-                firstName,
-                middleName,
-                lastName,
-                email,
-                phone,
-                birthDate,
-                postCode,
-                street,
-                number
-            }
-        );
-        console.log(newClient);
-        return res.status(200).json({ message: 'Client created', newClient: newClient});
-    } catch(err){
-        console.error('Err creating lient: ', err);
-    }
+    try {
+        const newClient = await clientService.createClient({
+            firstName,
+            middleName,
+            lastName,
+            email,
+            phone,
+            birthDate,
+            postCode,
+            street,
+            number,
+            userId
+        });
 
-}
+        if (!newClient) {
+            return res.status(400).json({ message: `Email ${email} already registered` });
+        }
+
+        return res.status(200).json({ message: 'Client created', newClient });
+
+    } catch (err) {
+        console.error('Err creating client: ', err);
+        return res.status(500).json({ message: 'Unexpected error' });
+    }
+};
 
 export const deleteClient = async (req, res) => {
     try {
         const { id } = req.params;
-        const ClientToDelete = await Client.findByPk(id);
+        const result = await clientService.deleteClient(id);
 
-        if(!ClientToDelete){
-            return res.status(404).json({message: 'Client nor found'})
+        if (result === null) {
+            return res.status(404).json({ message: 'Client not found' });
         }
 
-        if(!ClientToDelete.status){
-            return res.status(200).json({ message: `CLient ${id} is already inactive`})
+        if (result === true) {
+            return res.status(200).json({ message: `Client ${id} is already inactive` });
         }
 
-        ClientToDelete.status = false;
-        await ClientToDelete.save();
-        return res.status(200).json({ message: `CLient ${id} is now inactive `});
+        return res.status(200).json({ message: `Client ${id} is now inactive` });
 
-    } catch(err){
-        console.error('Err deleting user: '. err);
-        return res.status(500).json({ message: 'Unexpected error'});
+    } catch (err) {
+        console.error('Err deleting client: ', err);
+        return res.status(500).json({ message: 'Unexpected error' });
     }
 };
-

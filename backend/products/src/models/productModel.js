@@ -25,6 +25,16 @@ const Product = sequelize.define(
             type: DataTypes.STRING,
             allowNull: true,
         },
+        status: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true
+        },
+
+        stock: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+            defaultValue: 0
+        }
         // category_id: {
         //     type: DataTypes.INTEGER,
         //     allowNull: false

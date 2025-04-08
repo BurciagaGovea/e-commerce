@@ -20,7 +20,7 @@ const Orders = sequelize.define(
         },
         status: {
             type: DataTypes.ENUM,
-            values: ['completed', 'canceled'],
+            values: ['completed','pending', 'canceled'],
             allowNull: false,
             defaultValue: 'completed'
         }

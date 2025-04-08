@@ -1,0 +1,25 @@
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime files
+pids/
+*.pid
+*.pid.lock
+
+# Special files
+drive_storage.json
+
+# System files
+.DS_Store
+
+# Docker
+*.swp

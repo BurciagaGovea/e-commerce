@@ -19,10 +19,11 @@ const initDB = async () => {
         // await Category.sync({force: true});
         // await Product.sync({force: true});
         // await Inventory.sync({force: true});
-
-        // await models.Category.sync({ alter: true });
-        // await models.Product.sync({ alter: true });
-        // await models.Inventory.sync({ alter: true });
+        
+        await models.Comment.sync({alter: true});
+        await models.Category.sync({ alter: true });
+        await models.Product.sync({ alter: true });
+        await models.Inventory.sync({ alter: true });
 
         console.log('Tables created!')
         

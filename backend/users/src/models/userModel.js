@@ -10,17 +10,31 @@ const User = sequelize.define(
             autoIncrement: true,
         },
 
-        username: {
+        // clientId: { no sé donde ponerlo
+        //     type: DataTypes.INTEGER,
+        //     allowNull: true,
+        //     unique: true,
+        // },
+
+        email:{
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
+            validate: {
+                isEmail: true,
+            },
+        },
+        
+        password: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
 
         firstName: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-
+        
         middleName: {
             type: DataTypes.STRING,
             allowNull: true, //pq a lo mejor solo tiene un nombre
@@ -41,11 +55,6 @@ const User = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
-        },
-
-        password: {
-            type: DataTypes.STRING,
-            allowNull: false,
         },
 
         createdAt: {

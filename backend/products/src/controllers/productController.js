@@ -1,66 +1,81 @@
-import { models } from "../models/index.js";
-//____________Para que jale lo de drive____________
-import { uploadImage } from "../../drive.js";
-import fs from 'fs';
-//________________________________________________
+import { productService } from '../services/productService.js';
 
-const { Category, Product, Inventory } = models;
-
-export const getProducts = async(req, res) => {
-    try{
-        const products = await Product.findAll();
-        return res.status(200).json({products});
-    } catch(err){
+export const getProducts = async (req, res) => {
+    try {
+        const products = await productService.getAllProducts();
+        return res.status(200).json({ products });
+    } catch (err) {
         console.error(err);
+        return res.status(500).json({ message: 'Unexpected error' });
+    }
+};
+
+export const getProductById = async (req, res) => {
+    try {
+        const product = await productService.getProductById(req.params.id);
+        if (!product) return res.status(404).json({ message: 'Not found' });
+        return res.status(200).json({ product });
+    } catch (err) {
+        return res.status(500).json({ message: 'Unexpected error' });
     }
 };
 
 export const createProduct = async (req, res) => {
-    const { name, description, price, category_id } = req.body;
-    
-    //_____________PEDIMOS LA IMAGEN__________________
-
-    const file = req.file
-
-    if (!file){
-        return res.status(400).json({message: 'No file uploaded o_o'});
-    }
-
-    if (file.mimetype !== 'image/jpeg' && file.mimetype !== 'image/png'){
-        return res.status(400).json({message: 'Invalid image tipe just PNG and JPEG 0_0'});
-    }
-
-    //_____________________________________________
+    const file = req.file;
+    const productData = req.body;
 
     try {
-        const productExists = await Product.findOne({where: {name}});
-        if(productExists){
-            return res.status(200).json({
-                message: `${name} already exists`
-            });
+        const result = await productService.createProduct(productData, file);
+
+        if (result.exists) {
+            return res.status(200).json({ message: `${productData.name} already exists` });
         }
 
-        //____________________LA METEMOS 0__0________
-        const image_Url = await uploadImage(file);
-
-        fs.unlinkSync(file.path);
-
-
-        //__________________________________________
-        
-        const newProduct = await Product.create({
-            name,
-            description,
-            price,
-            category_id,
-            url: image_Url
-        });
-        return res.status(200).json({ 
+        return res.status(200).json({
             message: 'Product created',
-            product: newProduct
+            product: result.product
         });
+
     } catch (error) {
-        console.error('Err crating product: ', error);
-        return res.status(500).json({message: 'Unexpected error'});
+        if (error.message === 'No file uploaded') {
+            return res.status(400).json({ message: 'No file uploaded o_o' });
+        }
+
+        if (error.message === 'Invalid image type') {
+            return res.status(400).json({ message: 'Invalid image type. Only PNG and JPEG allowed 0_0' });
+        }
+
+        console.error('Error creating product:', error);
+        return res.status(500).json({ message: 'Unexpected error' });
     }
 };
+
+export const updateProduct = async (req, res) => {
+    try {
+        const product = await productService.updateProduct(req.params.id, req.body);
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+        return res.status(200).json({ message: 'Product updated', product });
+    } catch (error) {
+        return res.status(500).json({ message: 'Unexpected error' });
+    }
+};
+
+export const deleteProduct = async (req, res) => {
+    try {
+        const success = await productService.deleteProduct(req.params.id);
+        if (!success) return res.status(404).json({ message: 'Product not found' });
+        return res.status(200).json({ message: 'Product deleted' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Unexpected error' });
+    }
+};
+
+export const getProductsByCategory = async (req, res) => {
+    try {
+        const products = await productService.getProductsByCategory(req.params.category_id);
+        return res.status(200).json({ products });
+    } catch (err) {
+        return res.status(500).json({ message: 'Unexpected error' });
+    }
+};
+
