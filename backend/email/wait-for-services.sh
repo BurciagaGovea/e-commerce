@@ -21,12 +21,12 @@ done
 echo "MySQL está disponible."
 
 # Esperar RabbitMQ
-echo "Esperando a que RabbitMQ esté disponible en $RABBITMQ_HOST:5672..."
-while ! nc -z "$RABBITMQ_HOST" 5672; do
-  echo "RabbitMQ aún no está listo. Esperando..."
-  sleep 2
-done
-echo "RabbitMQ está disponible."
+# echo "Esperando a que RabbitMQ esté disponible en $RABBITMQ_HOST:5672..."
+# while ! nc -z "$RABBITMQ_HOST" 5672; do
+#   echo "RabbitMQ aún no está listo. Esperando..."
+#   sleep 2
+# done
+# echo "RabbitMQ está disponible."
 
 # Iniciar aplicación
 exec "$@"
