@@ -1,0 +1,26 @@
+{
+  "name": "email",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "handlebars": "^4.7.8",
+    "mysql2": "^3.12.0",
+    "nodemailer": "^6.10.0",
+    "nodemailer-express-handlebars": "^7.0.0",
+    "nodemon": "^3.1.9",
+    "sequelize": "^6.37.5"
+  }
+}

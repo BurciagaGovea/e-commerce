@@ -1,0 +1,46 @@
+# Archivos generados por Maven
+target/
+.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs y editores
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+# Archivos de compilación
+build/
+bin/
+
+# Logs
+*.log
+logs/
+spring.log
+
+# Configuración del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de pruebas y reportes
+surefire-reports/

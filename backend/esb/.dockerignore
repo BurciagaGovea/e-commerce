@@ -1,0 +1,21 @@
+# Ignorar compilados
+target/
+build/
+*.log
+*.class
+
+# Ignorar carpetas del sistema y de IDEs
+.git/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Ignorar tests
+src/test/
+
+# Otros archivos que no afectan la app
+*.md
+*.iml
+HELP.md
+Dockerfile
