@@ -12,7 +12,7 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { TOKEN, get_clients, get_orders, get_products, order_details } from '../../postman_routes/constants';
 
-export default function Past_orders() {
+export default function Canceled_orders() {
   const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [clients, setClients] = useState([]);
@@ -30,7 +30,7 @@ export default function Past_orders() {
           axios.get(get_products, { headers: { Authorization: `Bearer ${TOKEN}` } })
         ]);
 
-        setOrders(ordersRes.data.orders.filter(order => order.status === 'completed'));
+        setOrders(ordersRes.data.orders.filter(order => order.status === 'canceled'));
         setClients(clientsRes.data);
         setProducts(productsRes.data.products);
       } catch (err) {
@@ -52,7 +52,7 @@ export default function Past_orders() {
 
   const openOrderModal = async (orderId) => {
     try {
-      const res = await axios.get(order_details+orderId, {
+      const res = await axios.get(order_details + orderId, {
         headers: { Authorization: `Bearer ${TOKEN}` },
       });
       setSelectedOrder(res.data.order);
@@ -65,16 +65,15 @@ export default function Past_orders() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
-        <Text style={styles.title}>Past Orders</Text>
+        <Text style={styles.title}>Canceled Orders</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <Text style={styles.subtitle}>Review completed orders</Text>
+      <Text style={styles.subtitle}>Review canceled orders</Text>
 
       <FlatList
         data={orders}
@@ -82,7 +81,7 @@ export default function Past_orders() {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => openOrderModal(item.id)}
-            style={[styles.orderCard, styles.completedCard]}
+            style={[styles.orderCard, styles.canceledCard]}
           >
             <View style={styles.orderTextContainer}>
               <Text style={styles.orderTitle}>{getClientName(item.client_id)}</Text>
@@ -154,8 +153,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 12,
   },
-  completedCard: {
-    backgroundColor: '#E8E8FF',
+  canceledCard: {
+    backgroundColor: '#FFE4E4',
   },
   orderTextContainer: {
     flex: 1,

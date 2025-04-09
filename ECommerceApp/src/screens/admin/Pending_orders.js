@@ -12,7 +12,7 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { TOKEN, get_clients, get_orders, get_products, order_details } from '../../postman_routes/constants';
 
-export default function Past_orders() {
+export default function Pending_orders() {
   const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [clients, setClients] = useState([]);
@@ -27,32 +27,35 @@ export default function Past_orders() {
         const [ordersRes, clientsRes, productsRes] = await Promise.all([
           axios.get(get_orders, { headers: { Authorization: `Bearer ${TOKEN}` } }),
           axios.get(get_clients, { headers: { Authorization: `Bearer ${TOKEN}` } }),
-          axios.get(get_products, { headers: { Authorization: `Bearer ${TOKEN}` } })
+          axios.get(get_products, { headers: { Authorization: `Bearer ${TOKEN}` } }),
         ]);
 
-        setOrders(ordersRes.data.orders.filter(order => order.status === 'completed'));
+        setOrders(
+          ordersRes.data.orders.filter((order) => order.status === 'pending')
+        );
         setClients(clientsRes.data);
         setProducts(productsRes.data.products);
       } catch (err) {
         console.error('Error fetching data:', err.message);
       }
     };
+
     fetchData();
   }, []);
 
   const getClientName = (clientId) => {
-    const client = clients.find(c => c.id === clientId);
+    const client = clients.find((c) => c.id === clientId);
     return client ? `${client.firstName} ${client.middleName} ${client.lastName}` : 'Unknown Client';
   };
 
   const getProductName = (productId) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find((p) => p.id === productId);
     return product ? product.name : `Product #${productId}`;
   };
 
   const openOrderModal = async (orderId) => {
     try {
-      const res = await axios.get(order_details+orderId, {
+      const res = await axios.get(order_details + orderId, {
         headers: { Authorization: `Bearer ${TOKEN}` },
       });
       setSelectedOrder(res.data.order);
@@ -65,24 +68,23 @@ export default function Past_orders() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
-        <Text style={styles.title}>Past Orders</Text>
+        <Text style={styles.title}>Pending Orders</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <Text style={styles.subtitle}>Review completed orders</Text>
+      <Text style={styles.subtitle}>Review pending orders</Text>
 
       <FlatList
         data={orders}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => openOrderModal(item.id)}
-            style={[styles.orderCard, styles.completedCard]}
+            style={[styles.orderCard, styles.pendingCard]}
           >
             <View style={styles.orderTextContainer}>
               <Text style={styles.orderTitle}>{getClientName(item.client_id)}</Text>
@@ -154,8 +156,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 12,
   },
-  completedCard: {
-    backgroundColor: '#E8E8FF',
+  pendingCard: {
+    backgroundColor: '#FFF4CC',
   },
   orderTextContainer: {
     flex: 1,
