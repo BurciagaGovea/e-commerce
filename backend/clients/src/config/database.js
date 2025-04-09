@@ -15,7 +15,7 @@ const initDB = async () => {
         console.log('Connection has been established successfully.');
         await Client.sync( {alter: true} );
     } catch(err) {
-        console.err('Err at connection: ', err);
+        console.log('Err at connection: ', err);
     }
 };
 
