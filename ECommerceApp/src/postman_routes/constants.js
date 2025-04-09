@@ -7,6 +7,7 @@ export const get_products = "http://192.168.1.16:8081/esb/products";
 export const create_product = "http://192.168.1.16:8081/esb/products/upload"; 
 //get_categories
 export const get_categories="http://192.168.1.16:8081/esb/categories"
+export const post_category ="http://192.168.1.16:8081/esb/categories"
 
 
 
