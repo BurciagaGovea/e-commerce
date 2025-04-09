@@ -109,6 +109,12 @@ export const payCart = async(req, res) => {
             });
         }
 
+        if(cartPaid.error){
+          return res.status(500).json({
+            message: 'Products do not exist or not enough stock',
+          });
+        }
+
         return res.status(200).json({
             message: 'Cart paid',
             cart: cartPaid
