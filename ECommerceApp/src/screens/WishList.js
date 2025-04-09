@@ -29,18 +29,9 @@ const wishlistItems = [
   },
 ];
 
-export default function WishList() {
+export default function WishList({ navigation }) {
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity>
-          <Icon name="arrow-back" size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Icon name="close" size={24} color="#999" />
-        </TouchableOpacity>
-      </View>
 
       <Text style={styles.title}>Wishlist</Text>
 
@@ -52,9 +43,15 @@ export default function WishList() {
         columnWrapperStyle={styles.row}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Image source={{ uri: item.imageUrl }} style={styles.image} />
+            <View style={styles.deleteTag}><Text style={styles.deteleTxt}>x</Text></View>
+            <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { item })}>
+              <Image source={{ uri: item.imageUrl }} style={styles.image} />
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemPrice}>${item.price}</Text>
+            </TouchableOpacity>
+            {/* <Image source={{ uri: item.imageUrl }} style={styles.image} />
             <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemPrice}>${item.price}</Text>
+            <Text style={styles.itemPrice}>${item.price}</Text> */}
           </View>
         )}
       />
@@ -69,17 +66,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9F9F9',
     paddingHorizontal: 15,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    justifyContent: 'space-between',
-  },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '600',
     marginBottom: 10,
     marginLeft: 5,
+    marginTop: 15,
+    marginBottom: 20,
   },
   row: {
     justifyContent: 'space-between',
@@ -92,6 +85,21 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#eee',
+  },
+  deleteTag: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: '#D19793',
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderTopRightRadius: 15,
+    borderBottomLeftRadius: 10,
+  },
+  deteleTxt: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   image: {
     height: 100,

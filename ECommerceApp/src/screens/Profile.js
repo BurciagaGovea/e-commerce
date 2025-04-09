@@ -2,20 +2,17 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Icon name="arrow-back" size={24} />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
             <Icon name="heart-outline" size={22} style={{ marginRight: 15 }} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
             <Icon name="cart-outline" size={22} />
           </TouchableOpacity>
         </View>
@@ -63,7 +60,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* View orders button */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Orders')}>
         <Text style={styles.buttonText}>View orders</Text>
       </TouchableOpacity>
     </View>
@@ -84,7 +81,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
-    fontSize: 20,
+    marginTop:15,
+    marginLeft:5,
+    fontSize: 24,
     fontWeight: '600',
     alignContent: 'center',
     alignItems: 'center',

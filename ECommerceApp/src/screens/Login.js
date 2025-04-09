@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Login here</Text>
@@ -33,27 +33,14 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.signInButton}>
+      <TouchableOpacity style={styles.signInButton} onPress={() => navigation.navigate('Home')}>
         <Text style={styles.signInText}>Sign in</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}> 
         <Text style={styles.createText}>Create new account</Text>
       </TouchableOpacity>
 
-      <Text style={styles.orContinue}>Or continue with</Text>
-
-      <View style={styles.socialContainer}>
-        <View style={styles.socialIcon}>
-          <FontAwesome name="google" size={20} color="#111" />
-        </View>
-        <View style={styles.socialIcon}>
-          <FontAwesome name="facebook" size={20} color="#111" />
-        </View>
-        <View style={styles.socialIcon}>
-          <FontAwesome name="apple" size={20} color="#111" />
-        </View>
-      </View>
     </SafeAreaView>
   );
 };
@@ -61,7 +48,7 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFF',
     padding: 24,
     justifyContent: 'center',
   },
@@ -84,14 +71,10 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   input: {
-    backgroundColor: '#F8F8FF',
+    backgroundColor: '#F7F7F7',
     padding: 14,
     borderRadius: 10,
     marginBottom: 12,
-  },
-  inputWithBorder: {
-    borderColor: '#C37A74',
-    borderWidth: 1.5,
   },
   forgotText: {
     color: '#C37A74',
@@ -109,6 +92,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 10,
     alignItems: 'center',
+    marginLeft:12,
+    marginRight:12,
   },
   signInText: {
     color: '#fff',
@@ -120,23 +105,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#111',
     fontSize: 14,
-  },
-  orContinue: {
-    textAlign: 'center',
-    color: '#C37A74',
-    fontSize: 14,
-    marginVertical: 24,
-  },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  socialIcon: {
-    backgroundColor: '#F1F1F1',
-    padding: 12,
-    borderRadius: 10,
-    marginHorizontal: 6,
   },
 });
 

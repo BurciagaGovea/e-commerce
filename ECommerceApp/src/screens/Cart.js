@@ -66,10 +66,7 @@ const CartScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>← My Cart</Text>
-        <TouchableOpacity style={styles.closeBtn}>
-          <Text style={{ fontSize: 18 }}>✕</Text>
-        </TouchableOpacity>
+        <Text style={styles.headerText}>My Cart</Text>
       </View>
 
       <FlatList
@@ -105,7 +102,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop:20,
     flex: 1,
-    backgroundColor: '#FFF9F5',
+    backgroundColor: '#F9F9F9',
   },
   header: {
     padding: 20,
@@ -212,7 +209,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   totalValue: {
-    color: '#F6CEC8',
+    color: '#D19793',
     fontSize: 18,
   },
   orderBtn: {

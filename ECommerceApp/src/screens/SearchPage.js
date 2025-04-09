@@ -9,14 +9,14 @@ const products = [
   { id: '4', name: 'Matcha', price: 5, rating: 4.9, imageUrl: "https://i.pinimg.com/736x/8a/cf/2e/8acf2e1dc78f433674bd3f7780364fa5.jpg" },
 ];
 
-export default function SearchPage() {
+export default function SearchPage({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity><Icon name="arrow-back" size={24} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}><Icon name="arrow-back" size={24} /></TouchableOpacity>
         <Text style={styles.headerTitle}>Search your Flavour</Text>
-        <TouchableOpacity><Icon name="cart-outline" size={24} /></TouchableOpacity>
+        <TouchableOpacity><Icon name="cart-outline" size={24} onPress={() => navigation.navigate('Wishlist')} /></TouchableOpacity>
       </View>
 
       {/* Search */}
@@ -68,9 +68,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 15,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '600',
   },
   searchBar: {

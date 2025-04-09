@@ -102,11 +102,17 @@ export const addToCart = async(req, res) => {
 export const payCart = async(req, res) => {
     try{
         const { client_id } = req.params;
-        const cartPaid = await cartService.payCart(client_id);
+        const cartPaid = await cartService.payCartRemaster(client_id);
         if(!cartPaid){
             return res.status(404).json({
                 message: `No cart pendign for ${client_id}`
             });
+        }
+
+        if(cartPaid.error){
+          return res.status(500).json({
+            message: 'Products do not exist or not enough stock',
+          });
         }
 
         return res.status(200).json({

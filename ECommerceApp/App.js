@@ -18,7 +18,8 @@ import StackNavigator from "./src/navigation/StackNavigator";
 export default function App() {
   return (
     <NavigationContainer>
-      <StackNavigator/>
+      {/* <StackNavigator/> */}
+      <TabNavigator/>
       {/* <TabNavigator/> */}
       {/* <Charge /> */}
       {/* <LoginScreen/> */}

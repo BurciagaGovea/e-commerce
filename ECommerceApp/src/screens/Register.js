@@ -9,12 +9,13 @@ import {
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
       <Text style={styles.subtitle}>
-        Create an account so you can explore all the existing jobs
+        Create an account so you can explore and purchase your favorite
+        products.
       </Text>
 
       <View style={styles.inputContainer}>
@@ -30,34 +31,33 @@ const RegisterScreen = () => {
           style={styles.input}
         />
         <TextInput
-          placeholder="Confirm Password"
+          placeholder="First Name"
+          placeholderTextColor="#999"
+          secureTextEntry
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Last Name"
+          placeholderTextColor="#999"
+          secureTextEntry
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="First Name"
           placeholderTextColor="#999"
           secureTextEntry
           style={styles.input}
         />
       </View>
 
-      <TouchableOpacity style={styles.signUpButton}>
+      <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('Home')}>
         <Text style={styles.signUpText}>Sign up</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <Text style={styles.haveAccount}>Already have an account</Text>
       </TouchableOpacity>
 
-      <Text style={styles.orContinue}>Or continue with</Text>
-
-      <View style={styles.socialContainer}>
-        <View style={styles.socialIcon}>
-          <FontAwesome name="google" size={20} color="#111" />
-        </View>
-        <View style={styles.socialIcon}>
-          <FontAwesome name="facebook" size={20} color="#111" />
-        </View>
-        <View style={styles.socialIcon}>
-          <FontAwesome name="apple" size={20} color="#111" />
-        </View>
-      </View>
     </SafeAreaView>
   );
 };
@@ -65,7 +65,7 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFF',
     padding: 24,
     justifyContent: 'center',
   },
@@ -81,12 +81,14 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
     marginBottom: 32,
+    marginLeft:12,
+    marginRight:12,
   },
   inputContainer: {
     marginBottom: 20,
   },
   input: {
-    backgroundColor: '#F8F8FF',
+    backgroundColor: '#F7F7F7',
     padding: 14,
     borderRadius: 10,
     marginBottom: 12,
