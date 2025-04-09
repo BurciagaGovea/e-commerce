@@ -1,228 +1,87 @@
 import React from 'react';
-import { View, Text, FlatList, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-
-const categories = [
-    { id: '1', title: 'Choose cookies', imageUrl: 'https://ejemplo.com/cookie.jpg' },
-    { id: '2', title: 'Cheesecake', imageUrl: 'https://ejemplo.com/cheesecake.jpg' },
-    { id: '3', title: 'CUPCAKES', imageUrl: 'https://ejemplo.com/cupcake.jpg' },
-];
+import { View, Text, TextInput, Image, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const bestSelling = [
-    { 
-        id: "1", 
-        title: "Cupcakes", 
-        price: 33, 
-        imageUrl: "https://ejemplo.com/cupcake.jpg",
-        description: "Delicious cupcakes with frosting.",
-        rating: 4.8,
-        reviewsCount: 89,
-        basePrice: 33,
-        allergens: "Gluten, dairy, eggs",
-    },
-    { 
-        id: "2", 
-        title: "Cheesecake", 
-        price: 41, 
-        imageUrl: "https://ejemplo.com/cheesecake.jpg",
-        description: "Creamy and tasty cheesecake.",
-        rating: 4.9,
-        reviewsCount: 120,
-        basePrice: 41,
-        allergens: "Gluten, dairy, eggs",
-    },
+  { id: '1', name: 'Choco cookies', price: '$33', imageUrl: 'https://i.pinimg.com/736x/74/06/cb/7406cb16ba13fe964ab6406703365328.jpg' },
+  { id: '2', name: 'Cheesecake', price: '$41', imageUrl: 'https://i.pinimg.com/736x/46/0e/41/460e41dd5bb30432854f1881fa54d74a.jpg' },
+];
+
+const categories = [
+  { id: '1', name: 'ROLL', image: 'https://i.pinimg.com/736x/f6/8c/16/f68c16a0d4ab255746454ee01b0b096d.jpg' },
+  { id: '2', name: 'COOKIES', image: 'https://i.pinimg.com/736x/a3/66/dc/a366dc857b7b7335b8ef269fc549d229.jpg' },
 ];
 
 const Home = () => {
-    const navigation = useNavigation();
+  return (
+    <ScrollView style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
+      <Text style={{ fontSize: 26, fontWeight: 'bold', paddingTop: 30 }}>Hi there!</Text>
+      <Text style={{ color: '#666', marginVertical: 6 }}>What are you looking for today?</Text>
 
-    const handleProductPress = (product) => {
-        navigation.navigate('DetailsProduct', { product });
-    };
-
-    // Función para ir a la pantalla de búsqueda
-    const handleSearchPress = () => {
-        navigation.navigate('SearchPage');
-    };
-
-    return (
-        <ScrollView style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>CUPCAKES ALL THE TIME</Text>
-            </View>
-
-            {/* Search Bar */}
-            <TouchableOpacity style={styles.searchContainer} onPress={handleSearchPress}>
-                <Text style={styles.searchText}>Search code cookies, anything...</Text>
-            </TouchableOpacity>
-
-            {/* Best Selling Section */}
-            <Text style={styles.sectionTitle}>Our Best Selling</Text>
-            <FlatList 
-                data={bestSelling}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.bestSellingContainer}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.bestSellingCard}
-                        onPress={() => handleProductPress(item)}
-                    >
-                        <Image 
-                            source={{ uri: item.imageUrl }} 
-                            style={styles.bestSellingImage} 
-                        />
-                        <Text style={styles.bestSellingTitle}>{item.title}</Text>
-                        <Text style={styles.price}>M ${item.price}</Text>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={(item) => item.id}
-            />
-
-            {/* Categories Section */}
-            <Text style={styles.sectionTitle}>Explore Categories</Text>
-            <FlatList 
-                data={categories}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.categoriesContainer}
-                renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.categoryCard}>
-                        <Image 
-                            source={{ uri: item.imageUrl }} 
-                            style={styles.categoryImage} 
-                        />
-                        <Text style={styles.categoryTitle}>{item.title}</Text>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={(item) => item.id}
-            />
-
-            {/* Bottom Navigation */}
-            <View style={styles.bottomNav}>
-                <Text style={styles.navTextActive}>Home</Text>
-                <Text style={styles.navText}>Walike</Text>
-                <Text style={styles.navText}>Profile</Text>
-                <Text style={styles.navText}>Cart</Text>
-            </View>
-        </ScrollView>
-    );
-};
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: 16,
-    },
-    header: {
-        backgroundColor: '#000',
-        borderRadius: 12,
-        padding: 20,
-        marginBottom: 16,
-    },
-    headerTitle: {
-        color: '#fff',
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    searchContainer: {
-        backgroundColor: '#f5f5f5',
-        borderRadius: 25,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        marginBottom: 24,
-    },
-    searchText: {
-        color: '#888',
-        fontSize: 16,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 16,
-        marginLeft: 8,
-    },
-    bestSellingContainer: {
-        paddingLeft: 8,
-        paddingBottom: 24,
-    },
-    bestSellingCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        marginRight: 16,
-        width: 160,
-        padding: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    bestSellingImage: {
-        width: '100%',
-        height: 140,
-        borderRadius: 8,
-        marginBottom: 8,
-    },
-    bestSellingTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 4,
-    },
-    price: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#000',
-    },
-    categoriesContainer: {
-        paddingLeft: 8,
-        paddingBottom: 24,
-    },
-    categoryCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        marginRight: 16,
-        width: 140,
-        padding: 12,
-        borderWidth: 1,
-        borderColor: '#ff4d4d',
-        alignItems: 'center',
-    },
-    categoryImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 8,
-        marginBottom: 8,
-    },
-    categoryTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        textAlign: 'center',
-    },
-    bottomNav: {
+      <View style={{
         flexDirection: 'row',
-        justifyContent: 'space-around',
-        paddingVertical: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#eee',
-        marginTop: 16,
-    },
-    navText: {
-        fontSize: 16,
-        color: '#888',
-        fontWeight: '500',
-    },
-    navTextActive: {
-        fontSize: 16,
-        color: '#000',
-        fontWeight: 'bold',
-    },
-});
+        alignItems: 'center',
+        backgroundColor: '#f3f3f3',
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        marginVertical: 10
+      }}>
+        <Ionicons name="search" size={20} color="#999" />
+        <TextInput
+          placeholder="Search cake, cookies, anything..."
+          style={{ marginLeft: 10, flex: 1 }}
+        />
+      </View>
+
+      <Image
+        source={{ uri: 'https://i.pinimg.com/736x/40/50/ab/4050ab9eb9c75e7cd9ba675e40b98a48.jpg' }}
+        style={{ width: '100%', height: 150, borderRadius: 10, marginVertical: 10 }}
+        resizeMode="cover"
+      />
+
+      <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 20 }}>Our Best Selling</Text>
+
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={bestSelling}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <View style={{ width: 140, marginRight: 15, marginTop: 10 }}>
+            <Image source={{ uri: item.imageUrl }} style={{ width: '100%', height: 100, borderRadius: 10 }} />
+            <Text style={{ marginTop: 8, fontWeight: '500' }}>{item.name}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ color: '#D19793' }}>{item.price}</Text>
+              <TouchableOpacity>
+                <Ionicons name="add-circle-outline" size={24} color="#D19793" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
+
+      <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 30 }}>Explore Categories</Text>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+        {categories.map(cat => (
+          <TouchableOpacity key={cat.id} style={{ width: '48%' }}>
+            <Image source={cat.image} style={{ width: '100%', height: 120, borderRadius: 10 }} />
+            <Text style={{
+              position: 'absolute',
+              bottom: 10,
+              left: 10,
+              color: '#F9F9F9',
+              fontWeight: 'bold',
+              fontSize: 16,
+              textShadowColor: 'rgba(0,0,0,0.5)',
+              textShadowOffset: { width: 1, height: 1 },
+              textShadowRadius: 5
+            }}>{cat.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </ScrollView>
+  );
+};
 
 export default Home;

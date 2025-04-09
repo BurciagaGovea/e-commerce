@@ -59,7 +59,7 @@ const ProductList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F9F9F9",
     padding: 16,
   },
   header: {

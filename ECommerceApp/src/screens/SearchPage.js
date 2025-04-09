@@ -1,233 +1,151 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; 
-// o import Ionicons from 'react-native-vector-icons/Ionicons';
+import React from 'react';
+import { View, Text, TextInput, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const mockData = [
-  {
-    id: '1',
-    name: 'Chocolate Chip',
-    category: 'Cookies',
-    imageUrl: 'https://images.unsplash.com/photo-1559076728-a076fc9fab60',
-    price: 5,
-    rating: 4.9,
-  },
-  {
-    id: '2',
-    name: 'Rainbow',
-    category: 'Cookies',
-    imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90',
-    price: 5,
-    rating: 4.9,
-  },
-  {
-    id: '3',
-    name: 'Waffle',
-    category: 'Cookies',
-    imageUrl: 'https://images.unsplash.com/photo-1588382519841-35fbbd6f6749',
-    price: 5,
-    rating: 4.9,
-  },
-  {
-    id: '4',
-    name: 'Matcha',
-    category: 'Cookies',
-    imageUrl: 'https://images.unsplash.com/photo-1563805042-7684ce1e1f04',
-    price: 5,
-    rating: 4.9,
-  },
-  // Agrega más ítems si lo deseas
+const products = [
+  { id: '1', name: 'Chocolate Chip', price: 5, rating: 4.9, imageUrl: "https://i.pinimg.com/736x/3a/04/91/3a04911bb4ad05f374b7c5ae23dcf293.jpg" },
+  { id: '2', name: 'Rainbow', price: 5, rating: 4.9, imageUrl: "https://i.pinimg.com/736x/d2/18/4a/d2184afbfda5a3c1f4694d9b3b375a9a.jpg" },
+  { id: '3', name: 'Waffle', price: 5, rating: 4.9, imageUrl: "https://i.pinimg.com/736x/cb/35/41/cb3541fec49e6325580bdb3b88dca1be.jpg" },
+  { id: '4', name: 'Matcha', price: 5, rating: 4.9, imageUrl: "https://i.pinimg.com/736x/8a/cf/2e/8acf2e1dc78f433674bd3f7780364fa5.jpg" },
 ];
 
-const Search = () => {
-  const [searchText, setSearchText] = useState('');
-  
-  // Aquí podrías filtrar los datos con base en searchText
-  const dataFiltered = mockData; // Simplificado, sin filtrar
-
+export default function SearchPage() {
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header con ícono de menú y carrito (o cualquier otro ícono) */}
+    <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerIconLeft}>
-          <Ionicons name="menu-outline" size={24} color="#000" />
-        </TouchableOpacity>
-        
+        <TouchableOpacity><Icon name="arrow-back" size={24} /></TouchableOpacity>
         <Text style={styles.headerTitle}>Search your Flavour</Text>
-        
-        <TouchableOpacity style={styles.headerIconRight}>
-          <Ionicons name="cart-outline" size={24} color="#000" />
+        <TouchableOpacity><Icon name="cart-outline" size={24} /></TouchableOpacity>
+      </View>
+
+      {/* Search */}
+      <View style={styles.searchBar}>
+        <Icon name="search-outline" size={20} color="#999" style={{ marginLeft: 10 }} />
+        <TextInput placeholder="Search Cookies" style={styles.input} />
+        <TouchableOpacity>
+          <View style={styles.filterButton}>
+            <Icon name="options-outline" size={20} color="#fff" />
+          </View>
         </TouchableOpacity>
       </View>
 
-      {/* Barra de búsqueda */}
-      <View style={styles.searchBar}>
-        <Ionicons name="search-outline" size={20} color="#aaa" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Cookies"
-          placeholderTextColor="#aaa"
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-      </View>
+      {/* Results text */}
+      <Text style={styles.resultsText}><Text style={{ fontWeight: 'bold' }}>Found</Text> 80 Results</Text>
 
-      {/* Resultados */}
-      <Text style={styles.resultsText}>Found {dataFiltered.length} Results</Text>
-
-      {/* Lista de productos en 2 columnas */}
+      {/* Product Grid */}
       <FlatList
-        data={dataFiltered}
-        keyExtractor={(item) => item.id}
+        data={products}
+        keyExtractor={item => item.id}
         numColumns={2}
-        contentContainerStyle={styles.flatListContent}
-        showsVerticalScrollIndicator={false}
+        columnWrapperStyle={styles.row}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card}>
-            {/* Imagen del producto */}
-            <View style={styles.imageContainer}>
-              <Image source={{ uri: item.imageUrl }} style={styles.image} />
-              {/* Etiqueta de precio */}
-              <View style={styles.priceTag}>
-                <Text style={styles.priceText}>${item.price}</Text>
-              </View>
-            </View>
-            
-            {/* Nombre y categoría */}
-            <Text style={styles.productName}>{item.name}</Text>
-            <Text style={styles.category}>{item.category}</Text>
-
-            {/* Parte inferior: ícono de favorito y rating */}
-            <View style={styles.cardFooter}>
-              <Ionicons name="heart-outline" size={20} color="#333" />
+          <View style={styles.card}>
+            <View style={styles.priceTag}><Text style={styles.priceText}>${item.price}</Text></View>
+            <Image source={{ uri:item.imageUrl }} style={styles.image} resizeMode="contain" />
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.subtext}>Cookies</Text>
+            <View style={styles.bottomRow}>
+              <Icon name="heart-outline" size={18} />
               <Text style={styles.rating}>{item.rating}</Text>
             </View>
-          </TouchableOpacity>
+          </View>
         )}
       />
-    </SafeAreaView>
+    </View>
   );
-};
-
-export default Search;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#F9F9F9',
+    paddingTop: 50,
   },
-  /* HEADER */
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  headerIconLeft: {
-    marginRight: 10,
-  },
-  headerIconRight: {
-    marginLeft: 'auto',
+    marginBottom: 20,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000',
   },
-  /* SEARCH BAR */
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    borderRadius: 25,
-    paddingHorizontal: 16,
+    backgroundColor: '#FFF',
+    borderRadius: 20,
     paddingVertical: 8,
+    marginBottom: 20,
   },
-  searchInput: {
+  input: {
     flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    color: '#000',
+    paddingHorizontal: 10,
   },
-  /* RESULTS TEXT */
+  filterButton: {
+    backgroundColor: '#D19793',
+    padding: 8,
+    borderRadius: 20,
+    marginRight: 10,
+  },
   resultsText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginVertical: 16,
+    marginBottom: 10,
   },
-  /* GRID */
-  flatListContent: {
-    paddingBottom: 16,
+  row: {
+    justifyContent: 'space-between',
   },
   card: {
-    flex: 1,
-    backgroundColor: '#fdfdfd',
-    borderRadius: 16,
-    margin: 8,
-    padding: 12,
-    // Sombra (iOS) / Elevation (Android)
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    width: '48%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 10,
+    marginBottom: 15,
     elevation: 2,
-  },
-  imageContainer: {
-    position: 'relative',
-    marginBottom: 8,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    height: 120,
-    borderRadius: 16,
-    resizeMode: 'cover',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
   priceTag: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: '#F8E1E7', // un rosa claro
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    top: 0,
+    right: 0,
+    backgroundColor: '#FFE8E3',
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderTopRightRadius: 15,
+    borderBottomLeftRadius: 10,
   },
   priceText: {
+    fontSize: 12,
     color: '#000',
+  },
+  image: {
+    height: 100,
+    width: 100,
+    alignSelf: 'center',
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  name: {
+    textAlign: 'center',
     fontWeight: '600',
+    color: '#D19793',
+  },
+  subtext: {
+    textAlign: 'center',
+    color: '#999',
     fontSize: 12,
   },
-  productName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 4,
-  },
-  category: {
-    fontSize: 14,
-    color: '#999',
-    marginBottom: 8,
-  },
-  cardFooter: {
+  bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    marginTop: 10,
   },
   rating: {
-    fontSize: 14,
-    color: '#000',
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
