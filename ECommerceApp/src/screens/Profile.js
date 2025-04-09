@@ -7,9 +7,6 @@ export default function ProfileScreen({ navigation }) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('HomeTab')}>
-          <Icon name="arrow-back" size={24} />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
@@ -63,7 +60,7 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       {/* View orders button */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Orders')}>
         <Text style={styles.buttonText}>View orders</Text>
       </TouchableOpacity>
     </View>
@@ -84,7 +81,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
-    fontSize: 20,
+    marginTop:15,
+    marginLeft:5,
+    fontSize: 24,
     fontWeight: '600',
     alignContent: 'center',
     alignItems: 'center',

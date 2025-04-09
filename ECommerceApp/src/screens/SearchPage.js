@@ -16,7 +16,7 @@ export default function SearchPage({ navigation }) {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}><Icon name="arrow-back" size={24} /></TouchableOpacity>
         <Text style={styles.headerTitle}>Search your Flavour</Text>
-        <TouchableOpacity><Icon name="cart-outline" size={24} /></TouchableOpacity>
+        <TouchableOpacity><Icon name="cart-outline" size={24} onPress={() => navigation.navigate('Wishlist')} /></TouchableOpacity>
       </View>
 
       {/* Search */}
@@ -68,9 +68,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 15,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '600',
   },
   searchBar: {

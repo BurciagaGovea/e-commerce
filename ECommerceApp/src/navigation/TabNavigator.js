@@ -12,6 +12,8 @@ import Profile from "../screens/Profile";
 import Cart from "../screens/Cart";
 import Charge from "../screens/Charge";
 import SearchPage from "../screens/SearchPage";
+import OrdersScreen from "../screens/OrdersScreen";
+import ProductDetail from "../screens/DetailsProduct";
 
 // Stack para el tab "Home"
 const HomeStack = createNativeStackNavigator();
@@ -20,6 +22,24 @@ const HomeStackScreen = () => (
     <HomeStack.Screen name="Home" component={Home} />
     <HomeStack.Screen name="Search" component={SearchPage} />
   </HomeStack.Navigator>
+);
+
+// Stack para el tab "Profile"
+const ProfileStack = createNativeStackNavigator();
+const ProfileStackScreen = () => (
+  <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+    <ProfileStack.Screen name="ProfileTab" component={Profile} />
+    <ProfileStack.Screen name="Orders" component={OrdersScreen} />
+  </ProfileStack.Navigator>
+);
+
+// Stack para el tab "Wishlist"
+const WishlistStack = createNativeStackNavigator();
+const WishlistStackScreen = () => (
+  <WishlistStack.Navigator screenOptions={{ headerShown: false }}>
+    <WishlistStack.Screen name="WishlistTab" component={Wishlist} />
+    <WishlistStack.Screen name="Details" component={ProductDetail} />
+  </WishlistStack.Navigator>
 );
 
 const Tab = createBottomTabNavigator();
@@ -70,8 +90,8 @@ const TabNavigator = () => {
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeStackScreen} />
-      <Tab.Screen name="Wishlist" component={Wishlist} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Wishlist" component={WishlistStackScreen} />
+      <Tab.Screen name="Profile" component={ProfileStackScreen} />
       <Tab.Screen name="Cart" component={Cart} />
     </Tab.Navigator>
   );

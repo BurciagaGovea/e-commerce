@@ -66,10 +66,7 @@ const CartScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>← My Cart</Text>
-        <TouchableOpacity style={styles.closeBtn}>
-          <Text style={{ fontSize: 18 }}>✕</Text>
-        </TouchableOpacity>
+        <Text style={styles.headerText}>My Cart</Text>
       </View>
 
       <FlatList

@@ -15,7 +15,7 @@ const categories = [
 const Home = ({ navigation }) => {
   return (
     <ScrollView style={{ flex: 1, padding: 20, backgroundColor: '#fff', marginTop:20 }}>
-      <Text style={{ fontSize: 26, fontWeight: 'bold', paddingTop: 30 }}>Hi there!</Text>
+      <Text style={{ fontSize: 24, fontWeight: '600', marginTop: 15 }}>Hi there!</Text>
       <Text style={{ color: '#666', marginVertical: 6 }}>What are you looking for today?</Text>
 
       <TouchableOpacity
@@ -44,7 +44,7 @@ const Home = ({ navigation }) => {
         resizeMode="cover"
       />
 
-      <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 20 }}>Our Best Selling</Text>
+      <Text style={{ fontSize: 20, fontWeight: '600', marginTop: 20 }}>Our Best Selling</Text>
 
       <FlatList
         horizontal
@@ -65,7 +65,7 @@ const Home = ({ navigation }) => {
         )}
       />
 
-      <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 30 }}>Explore Categories</Text>
+      <Text style={{ fontSize: 20, fontWeight: '600', marginTop: 30 }}>Explore Categories</Text>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
         {categories.map(cat => (

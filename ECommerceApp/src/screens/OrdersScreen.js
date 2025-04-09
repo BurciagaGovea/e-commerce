@@ -9,16 +9,16 @@ const orders = [
   { id: '4', name: 'Cinammom Roll', status: 'Inactive', time: '1 month ago' },
 ];
 
-export default function OrdersScreen() {
+export default function OrdersScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('ProfileTab')}>
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
         <Text style={styles.title}>View Orders</Text>
-        <View style={{ width: 24 }} /> {/* Espacio para balancear íconos */}
+        <View style={{ width: 24 }} /> 
       </View>
 
       <Text style={styles.subtitle}>Find your orders here</Text>
@@ -58,9 +58,10 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'space-between',
       marginBottom: 20,
+      marginTop:15,
     },
     title: {
-      fontSize: 20,
+      fontSize: 24,
       fontWeight: '600',
     },
     subtitle: {
