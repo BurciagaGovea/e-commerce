@@ -14,14 +14,14 @@ RUN npm install --omit=dev
 COPY . .
 
 # Instala netcat para el script de espera
-RUN apk add --no-cache netcat-openbsd
+# RUN apk add --no-cache netcat-openbsd
 
-# Copia el script para esperar a MySQL
-COPY wait-for-services.sh /wait-for-services.sh
-RUN chmod +x /wait-for-services.sh
+# # Copia el script para esperar a MySQL
+# COPY wait-for-services.sh /wait-for-services.sh
+# RUN chmod +x /wait-for-services.sh
 
 # Expone el puerto 3000
 EXPOSE 3000
 
 # Comando de inicio
-CMD ["/wait-for-services.sh", "node", "index.js"]
+CMD ["node", "index.js"]
