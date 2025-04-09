@@ -66,13 +66,14 @@ export default function EditProduct() {
     if (!selectedId) return;
 
     const payload = {
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      status: true,
-      category_id: parseInt(formData.category),
-    };
-
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        url: formData.image, 
+        status: true,
+        category_id: parseInt(formData.category),
+      };
+      
     axios
       .put(`${get_products}/${selectedId}`, payload, {
         headers: {
