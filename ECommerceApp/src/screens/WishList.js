@@ -29,12 +29,12 @@ const wishlistItems = [
   },
 ];
 
-export default function WishList() {
+export default function WishList({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('HomeTab')}>
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
         <TouchableOpacity>

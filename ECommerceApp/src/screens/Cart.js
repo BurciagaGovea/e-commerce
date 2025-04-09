@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop:20,
     flex: 1,
-    backgroundColor: '#FFF9F5',
+    backgroundColor: '#F9F9F9',
   },
   header: {
     padding: 20,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   totalValue: {
-    color: '#F6CEC8',
+    color: '#D19793',
     fontSize: 18,
   },
   orderBtn: {
