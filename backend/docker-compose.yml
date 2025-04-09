@@ -12,23 +12,23 @@ services:
     networks:
       - e-commerce
 
-  mysql:
-    image: mysql:latest
-    container_name: mysql
-    restart: always
-    env_file:
-      - ./.env
-    environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    ports:
-      - "3307:3306"
-    networks:
-      - e-commerce
-    volumes:
-      - mysql_data:/var/lib/mysql
+  #mysql:
+   # image: mysql:latest
+    #container_name: mysql
+    #restart: always
+    #env_file:
+      #- ./.env
+    #environment:
+      #MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      #MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      #MYSQL_USER: "${MYSQL_USER}"
+      #MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    #ports:
+      #- "3307:3306"
+    #networks:
+      #- e-commerce
+    #volumes:
+      #- mysql_data:/var/lib/mysql
 
   clients:
     build: ./clients
@@ -37,12 +37,12 @@ services:
     ports:
       - "3001:3000"
     env_file:
-    - ./.env
+    - ./clients/.env
     networks:
       - e-commerce
     depends_on:
       - rabbitmq
-      - mysql
+      #- mysql
 
   email:
     build: ./email
@@ -51,7 +51,7 @@ services:
     ports:
       - "3002:3000"
     env_file:
-    - ./.env
+    - ./email/.env
     networks:
       - e-commerce
     depends_on:
@@ -64,12 +64,12 @@ services:
     ports:
       - "3003:3000"
     env_file:
-    - ./.env
+    - ./orders/.env
     networks:
       - e-commerce
     depends_on:
       - rabbitmq
-      - mysql
+      #- mysql
 
   products:
     build: ./products
@@ -78,14 +78,14 @@ services:
     ports:
       - "3004:3000"
     env_file:
-    - ./.env
+    - ./products/.env
     volumes:
       - ./products/uploads:/app/uploads
     networks:
       - e-commerce
     depends_on:
       - rabbitmq
-      - mysql
+      #- mysql
 
   users:
     build: ./users
@@ -94,14 +94,17 @@ services:
     ports:
       - "3005:3000"
     env_file:
-    - ./.env
+    - ./users/.env
     networks:
       - e-commerce
     depends_on:
       - rabbitmq
-      - mysql
+      #- mysql
 
   esb:
+
+    platform: linux/amd64
+
     build: ./esb
     container_name: esb_service
     restart: always
