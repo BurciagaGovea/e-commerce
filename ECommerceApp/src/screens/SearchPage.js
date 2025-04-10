@@ -181,14 +181,15 @@ export default function SearchPage({ navigation }) {
 
                 <Text style={{ marginBottom: 5 }}>Quantity</Text>
                 <Picker
-                  selectedValue={quantity}
+                  selectedValue={quantity.toString()}
+                  onValueChange={(itemValue) => setQuantity(parseInt(itemValue))}
                   style={{ height: 50, width: 150, alignSelf: 'center' }}
-                  onValueChange={(itemValue) => setQuantity(itemValue)}
                 >
-                  {[1, 2, 3, 4, 5].map(num => (
-                    <Picker.Item key={num} label={num.toString()} value={num} />
+                  {["1", "2", "3", "4", "5"].map(num => (
+                    <Picker.Item key={num} label={num} value={num} />
                   ))}
                 </Picker>
+
 
                 <TouchableOpacity onPress={addToCart} style={styles.addButton}>
                   <Text style={{ color: '#fff', fontWeight: 'bold' }}>Add to cart</Text>
