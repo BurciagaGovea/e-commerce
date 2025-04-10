@@ -163,7 +163,6 @@ export default function SearchPage({ navigation }) {
               <Image source={{ uri: item.url }} style={styles.image} resizeMode="contain" />
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.subtext}>{categoryName}</Text>
-              <View style={styles.bottomRow}><Icon name="heart-outline" size={18} /><Text style={styles.rating}>★</Text></View>
             </TouchableOpacity>
           );
         }}

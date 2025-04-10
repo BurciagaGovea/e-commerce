@@ -17,7 +17,7 @@ const Charge = () => {
       <View style={styles.textContainer}>
         <Text style={styles.title}>bread</Text>
         <Text style={styles.description}>
-          Our flexible custom options let you personalize every aspect of your desserts to make it truly unique.
+          Explore all the existing desserts that you deserve.
         </Text>
       </View>
 

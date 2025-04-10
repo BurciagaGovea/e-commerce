@@ -7,7 +7,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 // Pantallas reales
 import Home from "../screens/Home";
-import Wishlist from "../screens/WishList"; 
 import Profile from "../screens/Profile";
 import Cart from "../screens/Cart";
 import Charge from "../screens/Charge";
@@ -31,15 +30,6 @@ const ProfileStackScreen = () => (
     <ProfileStack.Screen name="ProfileTab" component={Profile} />
     <ProfileStack.Screen name="Orders" component={OrdersScreen} />
   </ProfileStack.Navigator>
-);
-
-// Stack para el tab "Wishlist"
-const WishlistStack = createNativeStackNavigator();
-const WishlistStackScreen = () => (
-  <WishlistStack.Navigator screenOptions={{ headerShown: false }}>
-    <WishlistStack.Screen name="WishlistTab" component={Wishlist} />
-    <WishlistStack.Screen name="Details" component={ProductDetail} />
-  </WishlistStack.Navigator>
 );
 
 const Tab = createBottomTabNavigator();

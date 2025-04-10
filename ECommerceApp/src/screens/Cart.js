@@ -30,28 +30,53 @@ const CartScreen = () => {
   // Cargar datos del usuario y carrito
   useEffect(() => {
     const initCart = async () => {
-      const token = await AsyncStorage.getItem('TOKEN');
-      const decoded = parseJwt(token);
-      const clientId = decoded?.id || decoded?.sub || decoded?.user_id;
-      setUserId(clientId);
-
-      const existingCart = await AsyncStorage.getItem('CART_ITEMS');
-      const parsedCart = existingCart ? JSON.parse(existingCart) : [];
-      setCartItems(parsedCart);
-
-      const res = await axios.post('http://192.168.1.72:8082/esb/orders/create', {
-        client_id: clientId,
-        products: parsedCart.map(p => ({
-          product_id: p.id,
-          quantity: "1"
-        })),
-      });
-
-      setOrderId(res.data.order.id);
+      try {
+        const token = await AsyncStorage.getItem('TOKEN');
+        const decoded = parseJwt(token);
+        const clientId = decoded?.id || decoded?.sub || decoded?.user_id;
+        setUserId(clientId);
+  
+        // Obtener orden pendiente
+        const res = await axios.get(`https://eesb-production.up.railway.app/esb/orders/client/${clientId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        const pendingOrder = res.data.orders.find(order => order.status === 'pending');
+        if (!pendingOrder) {
+          setCartItems([]);
+          return;
+        }
+  
+        setOrderId(pendingOrder.id);
+  
+        // Obtener detalles completos de los productos
+        const detailedProducts = await Promise.all(
+          pendingOrder.products.map(async (p) => {
+            const productRes = await axios.get(`https://eesb-production.up.railway.app/esb/products/${p.product_id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+  
+            return {
+              id: p.product_id,
+              quantity: parseInt(p.quantity),
+              name: productRes.data.name,
+              price: parseFloat(productRes.data.price),
+              imageUrl: productRes.data.url,
+            };
+          })
+        );
+  
+        setCartItems(detailedProducts);
+        await AsyncStorage.setItem('CART_ITEMS', JSON.stringify(detailedProducts));
+      } catch (e) {
+        console.error("Error al cargar el carrito:", e.message);
+        Alert.alert("Error", "No se pudo cargar el carrito.");
+      }
     };
-
+  
     initCart();
   }, []);
+  
 
   // Guardar en AsyncStorage para persistencia
   const updateCartStorage = async (newItems) => {
@@ -65,7 +90,7 @@ const CartScreen = () => {
     );
     await updateCartStorage(updated);
 
-    await axios.post('http://192.168.1.72:8082/esb/orders/add', {
+    await axios.post('https://eesb-production.up.railway.app/esb/orders/add', {
       client_id: userId,
       product: [
         {
@@ -92,7 +117,7 @@ const CartScreen = () => {
   const handleOrder = async () => {
     try {
       if (!orderId) return Alert.alert('Error', 'No hay una orden activa.');
-      await axios.put(`http://192.168.1.72:8082/esb/orders/pay/${orderId}`);
+      await axios.put(`https://eesb-production.up.railway.app/esb/orders/pay/${orderId}`);
       Alert.alert('Orden realizada', '¡Gracias por tu compra!');
       await updateCartStorage([]);
       await AsyncStorage.removeItem('CART_ITEMS');
