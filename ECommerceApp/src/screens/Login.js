@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,38 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Image,
+  Alert,
 } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Por favor ingresa email y contraseña.');
+      return;
+    }
+
+    try {
+      const res = await axios.post('http://192.168.1.16:8081/esb/users/login', {
+        email,
+        password,
+      });
+
+      const token = res.data.token;
+      await AsyncStorage.setItem('TOKEN', token);
+
+      Alert.alert('Bienvenido', res.data.message);
+      navigation.navigate('Home'); // o el stack/tab que quieras mostrar tras login
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      Alert.alert('Error', 'Credenciales incorrectas o fallo en el servidor.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Login here</Text>
@@ -19,11 +46,15 @@ const LoginScreen = ({ navigation }) => {
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
           placeholderTextColor="#999"
           style={[styles.input, styles.inputWithBorder]}
         />
         <TextInput
           placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
           placeholderTextColor="#999"
           secureTextEntry
           style={styles.input}
@@ -33,14 +64,13 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.signInButton} onPress={() => navigation.navigate('Home')}>
+      <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
         <Text style={styles.signInText}>Sign in</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}> 
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.createText}>Create new account</Text>
       </TouchableOpacity>
-
     </SafeAreaView>
   );
 };
@@ -92,8 +122,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 10,
     alignItems: 'center',
-    marginLeft:12,
-    marginRight:12,
+    marginLeft: 12,
+    marginRight: 12,
   },
   signInText: {
     color: '#fff',
