@@ -123,7 +123,6 @@ export default function SearchPage({ navigation }) {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}><Icon name="arrow-back" size={24} /></TouchableOpacity>
         <Text style={styles.headerTitle}>Search your Flavour</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}><Icon name="home-outline" size={24} /></TouchableOpacity>
       </View>
 
       <View style={styles.searchBar}>

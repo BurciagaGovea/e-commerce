@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { decode as atob } from 'base-64';
 import { get_userbyid } from '../postman_routes/constants';
 
-// 🔐 Función para decodificar JWT
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -54,6 +53,18 @@ export default function ProfileScreen({ navigation }) {
     fetchUser();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('TOKEN');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (e) {
+      Alert.alert('Error', 'No se pudo cerrar sesión.');
+    }
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -75,16 +86,14 @@ export default function ProfileScreen({ navigation }) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
-            <Icon name="cart-outline" size={22} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={handleLogout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Profile image */}
       <Image
-        source={require('../media/profile.jpg')}
+        source={require('../media/bread.jpg')}
         style={styles.profileImage}
       />
 
@@ -131,7 +140,6 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
-// 👇 styles igual que antes
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,14 +154,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
-    marginTop:15,
-    marginLeft:5,
+    marginTop: 15,
+    marginLeft: 5,
     fontSize: 24,
     fontWeight: '600',
   },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  logoutText: {
+    marginTop: 15,
+    fontSize: 14,
+    color: '#D19793',
+    fontWeight: '600',
+    padding: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#FFF0F0',
+    borderRadius: 10,
   },
   profileImage: {
     width: 120,
