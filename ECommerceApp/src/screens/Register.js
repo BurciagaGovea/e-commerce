@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,67 +6,152 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = () => {
+  const navigation = useNavigation();
+
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    phone: '',
+    birthDate: '',
+    postCode: '',
+    street: '',
+    number: '',
+  });
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const handleChange = (key, value) => {
+    setForm({ ...form, [key]: value });
+  };
+
+  const isFormComplete = () => {
+    return Object.values(form).every((value) => value.trim() !== '');
+  };
+
+  const handleRegister = async () => {
+    const payload = {
+      user: {
+        email: form.email,
+        password: form.password,
+        firstName: form.firstName,
+        middleName: form.middleName,
+        lastName: form.lastName,
+        phone: form.phone,
+      },
+      client: {
+        firstName: form.firstName,
+        middleName: form.middleName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        birthDate: form.birthDate,
+        postCode: form.postCode,
+        street: form.street,
+        number: form.number,
+      },
+    };
+
+    try {
+      await axios.post(
+        'https://eesb-production.up.railway.app/esb/users/create',
+        payload
+      );
+
+      Alert.alert("Registro exitoso", "Tu cuenta ha sido creada correctamente.", [
+        {
+          text: "OK",
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+      Alert.alert('Error', 'No se pudo registrar el usuario.');
+    }
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      handleChange('birthDate', formattedDate);
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.subtitle}>
-        Create an account so you can explore and purchase your favorite
-        products.
-      </Text>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>
+            Create an account so you can explore and purchase your favorite products.
+          </Text>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Email"
-          placeholderTextColor="#999"
-          style={[styles.input, styles.inputWithBorder]}
-        />
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="First Name"
-          placeholderTextColor="#999"
-          secureTextEntry
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Last Name"
-          placeholderTextColor="#999"
-          secureTextEntry
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="First Name"
-          placeholderTextColor="#999"
-          secureTextEntry
-          style={styles.input}
-        />
-      </View>
+          <View style={styles.inputContainer}>
+            <TextInput placeholder="Email" value={form.email} onChangeText={(v) => handleChange('email', v)} style={styles.input} />
+            <TextInput placeholder="Password" value={form.password} onChangeText={(v) => handleChange('password', v)} secureTextEntry style={styles.input} />
+            <TextInput placeholder="First Name" value={form.firstName} onChangeText={(v) => handleChange('firstName', v)} style={styles.input} />
+            <TextInput placeholder="Middle Name" value={form.middleName} onChangeText={(v) => handleChange('middleName', v)} style={styles.input} />
+            <TextInput placeholder="Last Name" value={form.lastName} onChangeText={(v) => handleChange('lastName', v)} style={styles.input} />
+            <TextInput placeholder="Phone" value={form.phone} onChangeText={(v) => handleChange('phone', v)} keyboardType="phone-pad" style={styles.input} />
 
-      <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate('Home')}>
-        <Text style={styles.signUpText}>Sign up</Text>
-      </TouchableOpacity>
+            {/* Birth Date Picker */}
+            <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
+              <Text style={{ color: form.birthDate ? '#000' : '#999' }}>
+                {form.birthDate || 'Select Birth Date'}
+              </Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={form.birthDate ? new Date(form.birthDate) : new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                onChange={handleDateChange}
+                maximumDate={new Date()}
+              />
+            )}
 
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.haveAccount}>Already have an account</Text>
-      </TouchableOpacity>
+            <TextInput placeholder="Postal Code" value={form.postCode} onChangeText={(v) => handleChange('postCode', v)} keyboardType="numeric" style={styles.input} />
+            <TextInput placeholder="Street" value={form.street} onChangeText={(v) => handleChange('street', v)} style={styles.input} />
+            <TextInput placeholder="Number" value={form.number} onChangeText={(v) => handleChange('number', v)} keyboardType="numeric" style={styles.input} />
+          </View>
 
-    </SafeAreaView>
+          <TouchableOpacity
+            style={[styles.signUpButton, !isFormComplete() && styles.disabledButton]}
+            onPress={handleRegister}
+            disabled={!isFormComplete()}
+          >
+            <Text style={styles.signUpText}>Sign up</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.haveAccount}>Already have an account</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#FFF',
     padding: 24,
+    backgroundColor: '#FFF',
+    flexGrow: 1,
     justifyContent: 'center',
   },
   title: {
@@ -81,8 +166,6 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
     marginBottom: 32,
-    marginLeft:12,
-    marginRight:12,
   },
   inputContainer: {
     marginBottom: 20,
@@ -92,8 +175,6 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 12,
-    marginLeft:12,
-    marginRight:12,
   },
   signUpButton: {
     backgroundColor: '#F7CFCB',
@@ -105,8 +186,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 10,
     alignItems: 'center',
-    marginLeft:12,
-    marginRight:12,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+    shadowColor: 'transparent',
   },
   signUpText: {
     color: '#fff',
@@ -118,23 +201,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#111',
     fontSize: 14,
-  },
-  orContinue: {
-    textAlign: 'center',
-    color: '#C37A74',
-    fontSize: 14,
-    marginVertical: 24,
-  },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  socialIcon: {
-    backgroundColor: '#F1F1F1',
-    padding: 12,
-    borderRadius: 10,
-    marginHorizontal: 6,
   },
 });
 
