@@ -55,10 +55,13 @@ export default function Admin_Profile() {
       style={{ backgroundColor: "#fff" }}
       contentContainerStyle={{ ...styles.container, flexGrow: 1 }}
     >
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <View style={{ width: 24 }} />
-      </View>
+    <View style={styles.header}>
+      <Text style={styles.headerTitle}>Profile</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+        <Icon name="home-outline" size={24} color="#333" />
+      </TouchableOpacity>
+    </View>
+
 
       {/* Cards */}
       <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("PendingOrders")}>
