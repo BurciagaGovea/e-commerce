@@ -76,9 +76,6 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
-            <Icon name="heart-outline" size={22} style={{ marginRight: 15 }} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
             <Icon name="cart-outline" size={22} />
           </TouchableOpacity>
@@ -87,7 +84,7 @@ export default function ProfileScreen({ navigation }) {
 
       {/* Profile image */}
       <Image
-        source={{ uri: user.image || 'https://randomuser.me/api/portraits/women/65.jpg' }}
+        source={require('../media/profile.jpg')}
         style={styles.profileImage}
       />
 
