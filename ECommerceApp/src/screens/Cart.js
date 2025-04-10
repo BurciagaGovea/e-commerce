@@ -1,3 +1,5 @@
+// CartScreen.js actualizado con nombre, imagen y precio unitario de cada producto
+
 import React, { useState } from 'react';
 import {
   View, Text, Image, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Alert, ActivityIndicator
@@ -65,23 +67,26 @@ const CartScreen = () => {
       setPendingOrderId(pendingOrder.id);
       setHasPendingOrder(true);
 
-      const detailsRes = await axios.get(order_details+pendingOrder.id, {
+      const detailsRes = await axios.get(order_details + pendingOrder.id, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       const details = detailsRes.data.orderDetails;
 
       const enrichedItems = await Promise.all(details.map(async (item) => {
-        const productRes = await axios.get(get_product_by_id+item.product_id, {
+        const productRes = await axios.get(get_product_by_id + item.product_id, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        const product = productRes.data.product;
+
         return {
           id: item.product_id,
-          name: productRes.data.name,
+          name: product.name,
           price: parseFloat(item.unit_price),
+          unitPrice: parseFloat(item.unit_price),
           quantity: item.quantity,
-          imageUrl: productRes.data.url
+          imageUrl: product.url
         };
       }));
 
@@ -124,16 +129,10 @@ const CartScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.itemCard}>
-      <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
+      <Image source={{ uri: item.imageUrl }} style={styles.itemImage} resizeMode='contain' />
       <View style={styles.itemInfo}>
         <Text style={styles.itemTitle}>{item.name}</Text>
-        <View style={styles.row}>
-          <Text style={styles.star}>⭐ 4.9</Text>
-          <View style={styles.shipping}>
-            <FontAwesome name="truck" size={14} color="black" />
-            <Text style={styles.shippingText}> Free</Text>
-          </View>
-        </View>
+        <Text style={styles.unitPrice}>Unit price: ${item.unitPrice.toFixed(2)}</Text>
         <View style={styles.rowBetween}>
           <Text style={styles.qty}>Cantidad: {item.quantity}</Text>
           <Text style={styles.price}>${(item.price * item.quantity).toFixed(2)}</Text>
@@ -188,13 +187,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 20, padding: 14, marginBottom: 16,
     flexDirection: 'row', alignItems: 'center', elevation: 2,
   },
-  itemImage: { width: 60, height: 60, resizeMode: 'contain', marginRight: 12, borderRadius: 10 },
+  itemImage: { width: 60, height: 60, resizeMode: 'cover', marginRight: 12, borderRadius: 10 },
   itemInfo: { flex: 1 },
   itemTitle: { fontWeight: '600', fontSize: 16, marginBottom: 4 },
-  row: { flexDirection: 'row', alignItems: 'center' },
-  star: { marginRight: 8 },
-  shipping: { flexDirection: 'row', alignItems: 'center' },
-  shippingText: { fontSize: 12, marginLeft: 4 },
+  unitPrice: { fontSize: 13, color: '#666' },
   rowBetween: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginTop: 12,
