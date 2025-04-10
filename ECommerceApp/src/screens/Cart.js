@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, Image, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Alert, ActivityIndicator
 } from 'react-native';
@@ -6,6 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
 import { decode as atob } from 'base-64';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
+import { get_clients, get_orders, order_details, get_product_by_id, pay_order } from '../postman_routes/const_docker';
 
 const parseJwt = (token) => {
   try {
@@ -38,7 +40,7 @@ const CartScreen = () => {
       const userId = decoded?.id;
       if (!userId) throw new Error('ID de usuario no válido');
 
-      const clientsRes = await axios.get("https://eesb-production.up.railway.app/esb/clients", {
+      const clientsRes = await axios.get(get_clients, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const client = clientsRes.data.find(c => c.userId === userId);
@@ -46,7 +48,7 @@ const CartScreen = () => {
 
       setClientId(client.id);
 
-      const ordersRes = await axios.get("https://eesb-production.up.railway.app/esb/orders", {
+      const ordersRes = await axios.get(get_orders, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -63,14 +65,14 @@ const CartScreen = () => {
       setPendingOrderId(pendingOrder.id);
       setHasPendingOrder(true);
 
-      const detailsRes = await axios.get(`https://eesb-production.up.railway.app/esb/orders/details/${pendingOrder.id}`, {
+      const detailsRes = await axios.get(order_details+pendingOrder.id, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       const details = detailsRes.data.orderDetails;
 
       const enrichedItems = await Promise.all(details.map(async (item) => {
-        const productRes = await axios.get(`https://eesb-production.up.railway.app/esb/products/${item.product_id}`, {
+        const productRes = await axios.get(get_product_by_id+item.product_id, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -92,15 +94,22 @@ const CartScreen = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCartFromPendingOrder();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCartFromPendingOrder();
+    }, [])
+  );
 
   const handleOrder = async () => {
     try {
       if (!pendingOrderId) return Alert.alert('Error', 'No hay una orden pendiente activa.');
 
-      await axios.put(`https://eesb-production.up.railway.app/esb/orders/pay/${clientId}`);
+      const token = await AsyncStorage.getItem('TOKEN');
+      if (!token) throw new Error('Token no encontrado');
+
+      await axios.put(pay_order + clientId, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       Alert.alert('Pedido realizado con éxito', '¡Gracias por tu compra!', [
         { text: 'OK', onPress: () => fetchCartFromPendingOrder() }

@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { jwtDecode } from 'jwt-decode';
 import { Picker } from '@react-native-picker/picker';
-import { get_products, get_categories } from '../postman_routes/constants';
+import { get_products, get_categories, get_clients, get_cat_byid, add_to_cart } from '../postman_routes/const_docker';
 
 export default function SearchPage({ navigation }) {
   const [allProducts, setAllProducts] = useState([]);
@@ -38,7 +38,7 @@ export default function SearchPage({ navigation }) {
           const [productsRes, categoriesRes, clientsRes] = await Promise.all([
             axios.get(get_products, { headers: { Authorization: `Bearer ${storedToken}` } }),
             axios.get(get_categories, { headers: { Authorization: `Bearer ${storedToken}` } }),
-            axios.get('https://eesb-production.up.railway.app/esb/clients', { headers: { Authorization: `Bearer ${storedToken}` } })
+            axios.get(get_clients, { headers: { Authorization: `Bearer ${storedToken}` } })
           ]);
 
           const client = clientsRes.data.find(c => c.userId === userId);
@@ -72,7 +72,7 @@ export default function SearchPage({ navigation }) {
     try {
       const matchedCategory = allCategories.find(c => c.name.toLowerCase() === query.toLowerCase());
       if (matchedCategory) {
-        const res = await axios.get(`https://eesb-production.up.railway.app/esb/products/category/${matchedCategory.id}`, {
+        const res = await axios.get(get_cat_byid+matchedCategory.id, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setVisibleProducts(res.data.products.filter(p => p.url));
@@ -104,7 +104,7 @@ export default function SearchPage({ navigation }) {
 
   const addToCart = async () => {
     try {
-      await axios.post('https://eesb-production.up.railway.app/esb/orders/add', {
+      await axios.post(add_to_cart, {
         client_id: clientId,
         product: [{ product_id: selectedProduct.id.toString(), quantity: quantity.toString() }]
       }, {
