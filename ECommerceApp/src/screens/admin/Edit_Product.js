@@ -94,7 +94,8 @@ export default function EditProduct() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={{ backgroundColor: "#fff" }} contentContainerStyle={styles.container}>
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate("Admin_profile")}>
           <Icon name="arrow-back" size={24} />

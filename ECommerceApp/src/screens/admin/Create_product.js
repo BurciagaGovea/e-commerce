@@ -129,7 +129,10 @@ export default function Create_Product() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      style={{ backgroundColor: "#fff" }}
+      contentContainerStyle={{ ...styles.container, flexGrow: 1 }}
+    >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate("Admin_profile")}>
           <Icon name="arrow-back" size={24} />
@@ -137,9 +140,9 @@ export default function Create_Product() {
         <Text style={styles.headerTitle}>Create Product</Text>
         <View style={{ width: 24 }} />
       </View>
-
+  
       <Text style={styles.subtitle}>Fill all the characteristics</Text>
-
+  
       {formData.image && (
         <Image
           source={{ uri: formData.image.uri }}
@@ -147,13 +150,13 @@ export default function Create_Product() {
           resizeMode="contain"
         />
       )}
-
+  
       <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
         <Text style={styles.uploadButtonText}>
           {formData.image ? "Change Image" : "Select Image"}
         </Text>
       </TouchableOpacity>
-
+  
       <EditableField
         label="Name"
         value={formData.name}
@@ -170,7 +173,7 @@ export default function Create_Product() {
         value={formData.description}
         onChangeText={(text) => handleChange("description", text)}
       />
-
+  
       <View style={styles.pickerWrapper}>
         <Picker
           selectedValue={formData.category}
@@ -183,12 +186,13 @@ export default function Create_Product() {
           ))}
         </Picker>
       </View>
-
+  
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Create Product</Text>
       </TouchableOpacity>
     </ScrollView>
   );
+  
 }
 
 function EditableField({ label, value, onChangeText, keyboardType = "default" }) {

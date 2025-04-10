@@ -51,7 +51,10 @@ export default function Admin_Profile() {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      style={{ backgroundColor: "#fff" }}
+      contentContainerStyle={{ ...styles.container, flexGrow: 1 }}
+    >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={{ width: 24 }} />
@@ -87,7 +90,6 @@ export default function Admin_Profile() {
         <Text style={styles.actionText}>Modify product...</Text>
         <Icon name="create-outline" size={24} color="#F6CEC8" />
       </TouchableOpacity>
-
     </ScrollView>
   );
 }

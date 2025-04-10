@@ -88,7 +88,7 @@ export default function Create_Category() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={{ backgroundColor: "#fff" }} contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate("Admin_profile")}>
           <Icon name="arrow-back" size={24} />
@@ -96,9 +96,9 @@ export default function Create_Category() {
         <Text style={styles.headerTitle}>Create Category</Text>
         <View style={{ width: 24 }} />
       </View>
-
+  
       <Text style={styles.subtitle}>Existing Categories</Text>
-
+  
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id.toString()}
@@ -111,9 +111,9 @@ export default function Create_Category() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ marginBottom: 20 }}
       />
-
+  
       <Text style={styles.subtitle}>Fill all the fields</Text>
-
+  
       <EditableField
         label="Name"
         value={formData.name}
@@ -124,12 +124,13 @@ export default function Create_Category() {
         value={formData.description}
         onChangeText={(text) => handleChange("description", text)}
       />
-
+  
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Create Category</Text>
       </TouchableOpacity>
     </ScrollView>
   );
+  
 }
 
 function EditableField({ label, value, onChangeText, keyboardType = "default" }) {
