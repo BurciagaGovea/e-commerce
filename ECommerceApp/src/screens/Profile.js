@@ -1,8 +1,75 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { decode as atob } from 'base-64';
+import { get_userbyid } from '../postman_routes/const';
+
+// 🔐 Función para decodificar JWT
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64).split('').map((c) =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error al decodificar el token:', e);
+    return null;
+  }
+}
 
 export default function ProfileScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = await AsyncStorage.getItem('TOKEN');
+        if (!token) throw new Error('Token no encontrado');
+
+        const decoded = parseJwt(token);
+        if (!decoded) throw new Error('Token inválido');
+
+        const userId = decoded.id || decoded.sub || decoded.user_id;
+        if (!userId) throw new Error('ID de usuario no encontrado en el token');
+
+        const res = await axios.get(`${get_userbyid}${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(res.data.user);
+      } catch (err) {
+        console.error('Error al obtener datos del usuario:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#D88E88" />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>Error cargando los datos del usuario.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -20,7 +87,7 @@ export default function ProfileScreen({ navigation }) {
 
       {/* Profile image */}
       <Image
-        source={{ uri: 'https://randomuser.me/api/portraits/women/65.jpg' }}
+        source={{ uri: user.image || 'https://randomuser.me/api/portraits/women/65.jpg' }}
         style={styles.profileImage}
       />
 
@@ -30,7 +97,7 @@ export default function ProfileScreen({ navigation }) {
           <Icon name="person" size={20} style={styles.icon} />
           <View>
             <Text style={styles.label}>Name</Text>
-            <Text style={styles.value}>Amy Young</Text>
+            <Text style={styles.value}>{`${user.firstName} ${user.middleName} ${user.lastName}`}</Text>
           </View>
         </View>
 
@@ -38,7 +105,7 @@ export default function ProfileScreen({ navigation }) {
           <Icon name="business" size={20} style={styles.icon} />
           <View>
             <Text style={styles.label}>Address</Text>
-            <Text style={styles.value}>Home 24 st 232</Text>
+            <Text style={styles.value}>Not provided</Text>
           </View>
         </View>
 
@@ -46,7 +113,7 @@ export default function ProfileScreen({ navigation }) {
           <Icon name="call" size={20} style={styles.icon} />
           <View>
             <Text style={styles.label}>Phone</Text>
-            <Text style={styles.value}>+98 1245560090</Text>
+            <Text style={styles.value}>{user.phone}</Text>
           </View>
         </View>
 
@@ -54,7 +121,7 @@ export default function ProfileScreen({ navigation }) {
           <Icon name="mail" size={20} style={styles.icon} />
           <View>
             <Text style={styles.label}>E-Mail</Text>
-            <Text style={styles.value}>amyyoung@random.com</Text>
+            <Text style={styles.value}>{user.email}</Text>
           </View>
         </View>
       </View>
@@ -67,6 +134,7 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
+// 👇 styles igual que antes
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -85,9 +153,6 @@ const styles = StyleSheet.create({
     marginLeft:5,
     fontSize: 24,
     fontWeight: '600',
-    alignContent: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   headerIcons: {
     flexDirection: 'row',
