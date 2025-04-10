@@ -4,15 +4,13 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as atob } from 'base-64';
 import axios from 'axios';
-import moment from 'moment'; // Para mostrar "1 week ago", "18 hr", etc.
+import moment from 'moment';
 import { get_orders } from '../postman_routes/constants';
-
 
 export default function OrdersScreen({ navigation }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Decode token manualmente
   const parseJwt = (token) => {
     try {
       const base64Url = token.split('.')[1];
@@ -42,7 +40,11 @@ export default function OrdersScreen({ navigation }) {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        const filtered = res.data.orders.filter(order => order.client_id === userId);
+        const filtered = res.data.orders.filter(order =>
+          order.client_id === userId &&
+          (order.status === 'pending' || order.status === 'completed')
+        );
+
         setOrders(filtered);
       } catch (err) {
         console.error('Error al obtener órdenes:', err);
@@ -55,15 +57,17 @@ export default function OrdersScreen({ navigation }) {
   }, []);
 
   const renderItem = ({ item }) => {
-    const isActive = item.status === 'pending' || item.status === 'processing';
-    const statusColor = isActive ? '#D1F1D1' : '#EAEAEA';
-    const timeAgo = moment(item.createdAt).fromNow();
+    const isPending = item.status === 'pending';
+    const statusColor = isPending ? '#D1F1D1' : '#EAEAEA';
+    const statusText = isPending ? 'Pending' : 'Completed';
+    const createdDate = moment(item.createdAt).format('LLL'); // Ej: April 10, 2025 10:33 AM
 
     return (
       <View style={[styles.orderCard, { backgroundColor: statusColor }]}>
         <Text style={styles.orderTitle}>Order #{item.id}</Text>
-        <Text style={styles.statusText}>{isActive ? 'Active' : 'Inactive'}</Text>
-        <Text style={styles.timeText}>{timeAgo}</Text>
+        <Text style={styles.detail}>Total: ${parseFloat(item.total_price).toFixed(2)}</Text>
+        <Text style={styles.detail}>Status: {statusText}</Text>
+        <Text style={styles.date}>{createdDate}</Text>
       </View>
     );
   };
@@ -75,11 +79,11 @@ export default function OrdersScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>View Orders</Text>
+        <Text style={styles.headerTitle}>Your Orders</Text>
         <View style={{ width: 24 }} /> {/* Espaciador */}
       </View>
 
-      <Text style={styles.subTitle}>Find your orders here</Text>
+      <Text style={styles.subTitle}>Pending and completed orders</Text>
 
       {loading ? (
         <ActivityIndicator size="large" color="#D88E88" style={{ marginTop: 20 }} />
@@ -127,15 +131,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#222',
   },
-  statusText: {
-    fontSize: 14,
-    color: '#555',
+  detail: {
+    fontSize: 15,
     marginTop: 4,
+    color: '#444',
   },
-  timeText: {
+  date: {
     fontSize: 12,
-    color: '#999',
-    marginTop: 4,
+    color: '#666',
+    marginTop: 6,
     textAlign: 'right',
   },
 });
