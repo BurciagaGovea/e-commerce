@@ -4,7 +4,7 @@ import { View, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react
 export default function WelcomeScreen({ navigation }) {
   return (
     <ImageBackground
-      source={{ uri: 'https://i.pinimg.com/736x/3d/b8/b5/3db8b544375edb31c502eb352dd1a04b.jpg' }} // Puedes cambiar la imagen
+      source={require('../media/welcome.png')} // Puedes cambiar la imagen
       resizeMode="cover"
       style={styles.background}
     >

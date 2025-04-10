@@ -1,60 +1,134 @@
-import React from 'react';
-import { View, Text, TextInput, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { decode as atob } from 'base-64';
 
-const wishlistItems = [
-  {
-    id: '1',
-    name: 'Brownies',
-    price: 12,
-    imageUrl: 'https://i.pinimg.com/736x/29/2f/52/292f522da15bcda6c1797abf7ab96e88.jpg',
-  },
-  {
-    id: '2',
-    name: 'Blackberry Pie',
-    price: 12,
-    imageUrl: 'https://i.pinimg.com/736x/c2/ab/69/c2ab698f8160ba745a20338a58d357f2.jpg',
-  },
-  {
-    id: '3',
-    name: 'Strawberry cake',
-    price: 12,
-    imageUrl: 'https://i.pinimg.com/736x/44/1b/7e/441b7eda7a6e54885aec61136047e701.jpg',
-  },
-  {
-    id: '4',
-    name: 'Matcha Cupcake',
-    price: 12,
-    imageUrl: 'https://i.pinimg.com/736x/88/f7/6d/88f76de884ad7115eda4a029c29d9a1d.jpg',
-  },
-];
+const parseJwt = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64).split('').map((c) =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
 
 export default function WishList({ navigation }) {
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const token = await AsyncStorage.getItem('TOKEN');
+        if (!token) {
+          console.warn('No token found');
+          return;
+        }
+
+        const decoded = parseJwt(token);
+        const id = decoded?.id || decoded?.sub || decoded?.user_id;
+        if (!id) {
+          console.warn('User ID not found in token');
+          return;
+        }
+
+        setUserId(id);
+        const url = `http://192.168.1.72:8081/esb/wishlist/${id}`;
+        const wishlistRes = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const wishlist = wishlistRes.data.wishlist;
+        if (!wishlist || wishlist.length === 0) {
+          setWishlistItems([]);
+          return;
+        }
+
+        const detailedItems = await Promise.all(
+          wishlist.map(async (item) => {
+            try {
+              const productRes = await axios.get(
+                `http://192.168.1.72:8081/esb/products/get_products/${item.product_id}`
+              );
+              const product = productRes.data.product;
+              return {
+                id: product.id,
+                name: product.name,
+                price: parseFloat(product.price),
+                imageUrl: product.url || 'https://via.placeholder.com/150',
+              };
+            } catch (productError) {
+              console.warn('Error fetching product details:', productError);
+              return null;
+            }
+          })
+        );
+
+        setWishlistItems(detailedItems.filter(Boolean)); // Elimina nulls
+      } catch (err) {
+        console.error('❌ Error cargando la wishlist:', err);
+        Alert.alert('Error', 'No se pudo cargar la wishlist.');
+      }
+    };
+
+    fetchWishlist();
+  }, []);
+
+  const removeFromWishlist = async (product_id) => {
+    try {
+      if (!userId) return;
+
+      await axios.put(`http://192.168.1.72:8081/esb/wishlist/remove`, {
+        user_id: userId,
+        product_id: product_id,
+      });
+
+      setWishlistItems((prev) => prev.filter((item) => item.id !== product_id));
+      Alert.alert('Eliminado', 'Producto eliminado de tu wishlist');
+    } catch (err) {
+      console.error('Error al eliminar de wishlist:', err);
+      Alert.alert('Error', 'No se pudo eliminar el producto');
+    }
+  };
+
   return (
     <View style={styles.container}>
-
       <Text style={styles.title}>Wishlist</Text>
 
-      {/* Grid List */}
-      <FlatList
-        data={wishlistItems}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.deleteTag}><Text style={styles.deteleTxt}>x</Text></View>
-            <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { item })}>
-              <Image source={{ uri: item.imageUrl }} style={styles.image} />
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemPrice}>${item.price}</Text>
-            </TouchableOpacity>
-            {/* <Image source={{ uri: item.imageUrl }} style={styles.image} />
-            <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemPrice}>${item.price}</Text> */}
-          </View>
-        )}
-      />
+      {wishlistItems.length === 0 ? (
+        <Text style={{ textAlign: 'center', marginTop: 20, color: '#999' }}>
+          No hay productos en tu wishlist.
+        </Text>
+      ) : (
+        <FlatList
+          data={wishlistItems}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <TouchableOpacity
+                style={styles.deleteTag}
+                onPress={() => removeFromWishlist(item.id)}
+              >
+                <Text style={styles.deteleTxt}>x</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { item })}>
+                <Image source={{ uri: item.imageUrl }} style={styles.image} />
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemPrice}>${item.price}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -95,6 +169,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderTopRightRadius: 15,
     borderBottomLeftRadius: 10,
+    zIndex: 10,
   },
   deteleTxt: {
     fontSize: 12,

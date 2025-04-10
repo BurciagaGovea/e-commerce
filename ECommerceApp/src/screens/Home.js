@@ -8,7 +8,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { jwtDecode } from 'jwt-decode';
-import { get_categories, get_products } from '../postman_routes/constants';
+import { get_categories, get_products } from '../postman_routes/const';
 
 
 
@@ -92,7 +92,7 @@ const Home = ({ navigation }) => {
       </TouchableOpacity>
 
       <Image
-        source={{ uri: 'https://i.pinimg.com/736x/40/50/ab/4050ab9eb9c75e7cd9ba675e40b98a48.jpg' }}
+        source={require('../media/home.png')}
         style={{ width: '100%', height: 150, borderRadius: 10, marginVertical: 10 }}
         resizeMode="cover"
       />

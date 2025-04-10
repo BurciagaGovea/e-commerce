@@ -9,9 +9,9 @@ const Charge = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Image
-        source={{ uri: 'https://i.pinimg.com/736x/9e/18/78/9e1878a7b47762c149d4eee6e6281232.jpg'  } } // 👈 Asegúrate de poner tu imagen aquí
+        source={require('../media/charge.png')}
         style={styles.image}
-        resizeMode="contain"
+        resizeMode="cover"
       />
 
       <View style={styles.textContainer}>
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: '70%',
+    height: '80%',
   },
   textContainer: {
     paddingHorizontal: 24,
