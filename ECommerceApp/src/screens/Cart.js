@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, Image, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Alert,
+  View, Text, Image, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Alert, ActivityIndicator
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
@@ -24,80 +24,90 @@ const parseJwt = (token) => {
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [orderId, setOrderId] = useState(null);
-  const [userId, setUserId] = useState(null);
+  const [clientId, setClientId] = useState(null);
+  const [pendingOrderId, setPendingOrderId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [hasPendingOrder, setHasPendingOrder] = useState(true);
 
-  // Cargar datos del usuario y carrito
-  useEffect(() => {
-    const initCart = async () => {
+  const fetchCartFromPendingOrder = async () => {
+    try {
+      setLoading(true);
       const token = await AsyncStorage.getItem('TOKEN');
+      if (!token) throw new Error('Token no encontrado');
       const decoded = parseJwt(token);
-      const clientId = decoded?.id || decoded?.sub || decoded?.user_id;
-      setUserId(clientId);
+      const userId = decoded?.id;
+      if (!userId) throw new Error('ID de usuario no válido');
 
-      const existingCart = await AsyncStorage.getItem('CART_ITEMS');
-      const parsedCart = existingCart ? JSON.parse(existingCart) : [];
-      setCartItems(parsedCart);
+      const clientsRes = await axios.get("https://eesb-production.up.railway.app/esb/clients", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const client = clientsRes.data.find(c => c.userId === userId);
+      if (!client) throw new Error('Cliente no encontrado');
 
-      const res = await axios.post('http://192.168.1.72:8082/esb/orders/create', {
-        client_id: clientId,
-        products: parsedCart.map(p => ({
-          product_id: p.id,
-          quantity: "1"
-        })),
+      setClientId(client.id);
+
+      const ordersRes = await axios.get("https://eesb-production.up.railway.app/esb/orders", {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      setOrderId(res.data.order.id);
-    };
+      const pendingOrder = ordersRes.data.orders.find(order =>
+        order.client_id === client.id && order.status === "pending"
+      );
 
-    initCart();
+      if (!pendingOrder) {
+        setCartItems([]);
+        setHasPendingOrder(false);
+        return;
+      }
+
+      setPendingOrderId(pendingOrder.id);
+      setHasPendingOrder(true);
+
+      const detailsRes = await axios.get(`https://eesb-production.up.railway.app/esb/orders/details/${pendingOrder.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const details = detailsRes.data.orderDetails;
+
+      const enrichedItems = await Promise.all(details.map(async (item) => {
+        const productRes = await axios.get(`https://eesb-production.up.railway.app/esb/products/${item.product_id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        return {
+          id: item.product_id,
+          name: productRes.data.name,
+          price: parseFloat(item.unit_price),
+          quantity: item.quantity,
+          imageUrl: productRes.data.url
+        };
+      }));
+
+      setCartItems(enrichedItems);
+    } catch (err) {
+      console.error("Error al cargar carrito:", err.message);
+      Alert.alert("Error", "No se pudo cargar el carrito.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCartFromPendingOrder();
   }, []);
-
-  // Guardar en AsyncStorage para persistencia
-  const updateCartStorage = async (newItems) => {
-    setCartItems(newItems);
-    await AsyncStorage.setItem('CART_ITEMS', JSON.stringify(newItems));
-  };
-
-  const handleIncrease = async (item) => {
-    const updated = cartItems.map((p) =>
-      p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p
-    );
-    await updateCartStorage(updated);
-
-    await axios.post('http://192.168.1.72:8082/esb/orders/add', {
-      client_id: userId,
-      product: [
-        {
-          product_id: item.id,
-          quantity: "1"
-        }
-      ]
-    });
-  };
-
-  const handleDecrease = async (item) => {
-    if (item.quantity === 1) return;
-    const updated = cartItems.map((p) =>
-      p.id === item.id ? { ...p, quantity: p.quantity - 1 } : p
-    );
-    await updateCartStorage(updated);
-  };
-
-  const handleRemove = async (id) => {
-    const updated = cartItems.filter((p) => p.id !== id);
-    await updateCartStorage(updated);
-  };
 
   const handleOrder = async () => {
     try {
-      if (!orderId) return Alert.alert('Error', 'No hay una orden activa.');
-      await axios.put(`http://192.168.1.72:8082/esb/orders/pay/${orderId}`);
-      Alert.alert('Orden realizada', '¡Gracias por tu compra!');
-      await updateCartStorage([]);
-      await AsyncStorage.removeItem('CART_ITEMS');
+      if (!pendingOrderId) return Alert.alert('Error', 'No hay una orden pendiente activa.');
+
+      await axios.put(`https://eesb-production.up.railway.app/esb/orders/pay/${clientId}`);
+
+      Alert.alert('Pedido realizado con éxito', '¡Gracias por tu compra!', [
+        { text: 'OK', onPress: () => fetchCartFromPendingOrder() }
+      ]);
     } catch (e) {
-      Alert.alert('Error', 'No se pudo realizar la orden.');
+      console.error('Error al realizar la orden:', e.message);
+      Alert.alert('Error', 'No se pudo completar el pago.');
     }
   };
 
@@ -116,21 +126,10 @@ const CartScreen = () => {
           </View>
         </View>
         <View style={styles.rowBetween}>
-          <View style={styles.quantityControls}>
-            <TouchableOpacity style={styles.qtyButton} onPress={() => handleDecrease(item)}>
-              <Text style={styles.qtySymbol}>−</Text>
-            </TouchableOpacity>
-            <Text style={styles.qty}>{item.quantity}</Text>
-            <TouchableOpacity style={styles.qtyButton} onPress={() => handleIncrease(item)}>
-              <Text style={styles.qtySymbol}>＋</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.qty}>Cantidad: {item.quantity}</Text>
           <Text style={styles.price}>${(item.price * item.quantity).toFixed(2)}</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.removeIcon} onPress={() => handleRemove(item.id)}>
-        <Text style={{ fontSize: 18, color: '#999' }}>✕</Text>
-      </TouchableOpacity>
     </View>
   );
 
@@ -140,24 +139,34 @@ const CartScreen = () => {
         <Text style={styles.headerText}>My Cart</Text>
       </View>
 
-      <FlatList
-        data={cartItems}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingHorizontal: 20 }}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#D88E88" style={{ marginTop: 30 }} />
+      ) : !hasPendingOrder ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 18, color: '#999' }}>No tienes carritos activos.</Text>
+        </View>
+      ) : (
+        <>
+          <FlatList
+            data={cartItems}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+          />
 
-      <View style={styles.summary}>
-        <Text style={styles.lineItem}>
-          Sub Total <Text style={styles.lineValue}>${subtotal.toFixed(1)}</Text>
-        </Text>
-        <Text style={[styles.lineItem, { fontWeight: 'bold' }]}>
-          Total <Text style={[styles.lineValue, styles.totalValue]}>${subtotal.toFixed(1)}</Text>
-        </Text>
-        <TouchableOpacity style={styles.orderBtn} onPress={handleOrder}>
-          <Text style={styles.orderText}>Order</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.summary}>
+            <Text style={styles.lineItem}>
+              Sub Total <Text style={styles.lineValue}>${subtotal.toFixed(2)}</Text>
+            </Text>
+            <Text style={[styles.lineItem, { fontWeight: 'bold' }]}>
+              Total <Text style={[styles.lineValue, styles.totalValue]}>${subtotal.toFixed(2)}</Text>
+            </Text>
+            <TouchableOpacity style={styles.orderBtn} onPress={handleOrder}>
+              <Text style={styles.orderText}>Order</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -170,7 +179,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 20, padding: 14, marginBottom: 16,
     flexDirection: 'row', alignItems: 'center', elevation: 2,
   },
-  itemImage: { width: 60, height: 60, resizeMode: 'contain', marginRight: 12 },
+  itemImage: { width: 60, height: 60, resizeMode: 'contain', marginRight: 12, borderRadius: 10 },
   itemInfo: { flex: 1 },
   itemTitle: { fontWeight: '600', fontSize: 16, marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center' },
@@ -181,15 +190,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginTop: 12,
   },
-  quantityControls: { flexDirection: 'row', alignItems: 'center' },
-  qtyButton: {
-    borderWidth: 1, borderColor: '#C37A74', borderRadius: 20,
-    width: 28, height: 28, justifyContent: 'center', alignItems: 'center', marginHorizontal: 6,
-  },
-  qtySymbol: { color: '#C37A74', fontSize: 16, fontWeight: '600' },
-  qty: { fontSize: 16 },
+  qty: { fontSize: 15 },
   price: { fontSize: 18, fontWeight: '600' },
-  removeIcon: { position: 'absolute', top: 10, right: 10 },
   summary: { paddingHorizontal: 30, paddingVertical: 16 },
   lineItem: { fontSize: 16, color: '#444', marginBottom: 6 },
   lineValue: { fontWeight: '500' },

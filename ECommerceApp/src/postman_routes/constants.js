@@ -13,7 +13,6 @@ export const create_product = "https://eesb-production.up.railway.app/esb/produc
 export const get_categories="https://eesb-production.up.railway.app/esb/categories"
 export const post_category ="https://eesb-production.up.railway.app/esb/categories"
 
-
 //
 export const get_orders="https://eesb-production.up.railway.app/esb/orders"
 export const order_details="https://eesb-production.up.railway.app/esb/orders/details/"
@@ -23,6 +22,8 @@ export const order_details="https://eesb-production.up.railway.app/esb/orders/de
 export const get_clients='https://eesb-production.up.railway.app/esb/clients'
 
 
+//
+export const get_userbyid='https://eesb-production.up.railway.app/esb/users/3'
 
 
 //la estoy poniendo manual en lo que jala el login
