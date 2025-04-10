@@ -80,12 +80,6 @@ const CartScreen = () => {
         <Text style={styles.lineItem}>
           Sub Total <Text style={styles.lineValue}>${subtotal.toFixed(1)}</Text>
         </Text>
-        <Text style={styles.lineItem}>
-          Promocode <Text style={styles.lineValue}>${discount.toFixed(2)}</Text>
-        </Text>
-        <Text style={styles.lineItem}>
-          Delivery Charges <Text style={styles.lineValue}>Free</Text>
-        </Text>
         <Text style={[styles.lineItem, { fontWeight: 'bold' }]}>
           Total <Text style={[styles.lineValue, styles.totalValue]}>${total.toFixed(1)}</Text>
         </Text>

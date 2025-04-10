@@ -22,7 +22,7 @@ const LoginScreen = ({ navigation }) => {
     }
 
     try {
-      const res = await axios.post('http://192.168.1.16:8081/esb/users/login', {
+      const res = await axios.post('http://192.168.1.72:8081/esb/users/login', {
         email,
         password,
       });

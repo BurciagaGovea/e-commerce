@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { get_categories, get_products } from '../postman_routes/constants';
+import { get_categories, get_products } from '../postman_routes/const';
 
 const Home = ({ navigation }) => {
   const [bestSelling, setBestSelling] = useState([]);

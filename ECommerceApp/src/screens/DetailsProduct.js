@@ -1,29 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
+  View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView,
+  ScrollView, Alert, ActivityIndicator
 } from 'react-native';
 import { FontAwesome, Feather } from '@expo/vector-icons';
+import axios from 'axios';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
-const cakeImage =
-  'https://images.unsplash.com/photo-1611095973511-5bff60f7ff4b?auto=format&fit=crop&w=700&q=80';
-
-const sizes = ['16 cm', '20 cm', '22 cm', '24 cm'];
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJidXJjaWFnYWVkc29uQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NDI0NDkxMiwiZXhwIjoxNzQ0MjQ4NTEyfQ.pnqFkinLZpPmke4ct5DBUbinJSXHuAiQleRmSbcKHxM';
 
 const ProductDetail = () => {
-  const [selectedSize, setSelectedSize] = useState('20 cm');
+  const [product, setProduct] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { productId } = route.params;
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`http://192.168.1.72:8081/esb/products/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const commentsRes = await axios.get(`http://192.168.1.72:8081/esb/comments/product/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setProduct(res.data.product);
+        setComments(commentsRes.data.comments);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  const handleAddToCart = async () => {
+    try {
+      const body = {
+        client_id: 3,
+        product: [{ product_id: productId.toString(), quantity: "1" }]
+      };
+
+      await axios.post("http://192.168.1.72:8081/esb/orders/add", body, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      Alert.alert("Success", "Product added to cart!");
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "Failed to add product to cart.");
+    }
+  };
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#D19793" style={{ flex: 1, justifyContent: 'center' }} />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.backArrow}>←</Text>
           </TouchableOpacity>
           <View style={styles.headerIcons}>
@@ -32,78 +75,52 @@ const ProductDetail = () => {
           </View>
         </View>
 
-        {/* Cake Image */}
-        <Image source={{ uri: "https://i.pinimg.com/736x/1c/a5/4a/1ca54a0b322ded0ba7fae8c45c764f4c.jpg" }} style={styles.image} />
+        <Image
+          source={{ uri: product.url || "https://via.placeholder.com/400x300.png?text=No+Image" }}
+          style={styles.image}
+        />
 
-        {/* Title + Price */}
         <View style={styles.content}>
           <View style={styles.rowBetween}>
-            <Text style={styles.title}>Berry Wild Cake</Text>
-            <Text style={styles.price}>$22</Text>
+            <Text style={styles.title}>{product.name}</Text>
+            <Text style={styles.price}>${product.price}</Text>
           </View>
 
-          {/* Rating */}
           <View style={styles.row}>
-            <Text style={styles.rating}>⭐ 4.9 </Text>
-            <Text style={styles.reviewCount}>(102)</Text>
-            <TouchableOpacity>
-              <Text style={styles.reviewLink}>  See reviews</Text>
-            </TouchableOpacity>
+            <Text style={styles.rating}>⭐ {comments.length > 0 ? comments[0].rating : 'No rating'} </Text>
+            <Text style={styles.reviewCount}>({comments.length})</Text>
           </View>
 
-          {/* Description */}
-          <Text style={styles.description}>
-            Indulge in pure cocoa bliss with our delectable Chocolate Cake! Moist layers of rich
-            chocolate sponge with a delightful orange drizzle. Perfect for celebrating life's sweet
-            moments or simply satisfying your chocolate cravings.
-          </Text>
+          <Text style={styles.description}>{product.description}</Text>
 
           <Text style={styles.allergen}>
             <Text style={{ fontStyle: 'italic' }}>Allergen: Gluten, egg, dairy</Text>
           </Text>
 
-          {/* Sizes */}
-          <View style={styles.sizeOptions}>
-            {sizes.map((size) => (
-              <TouchableOpacity
-                key={size}
-                style={[
-                  styles.sizeButton,
-                  selectedSize === size && styles.selectedSizeButton,
-                ]}
-                onPress={() => setSelectedSize(size)}
-              >
-                <Text
-                  style={[
-                    styles.sizeText,
-                    selectedSize === size && styles.selectedSizeText,
-                  ]}
-                >
-                  {size}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Extra ingredient */}
           <View style={styles.extraContainer}>
             <Feather name="edit-3" size={18} color="#888" />
             <Text style={styles.extraText}> Extra ingredient (optional)</Text>
           </View>
+
+          {/* Comentarios */}
+          <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Reviews:</Text>
+          {comments.map((comment) => (
+            <Text key={comment.id} style={{ color: '#444', marginBottom: 4 }}>
+              ⭐ {comment.rating} - {comment.comment}
+            </Text>
+          ))}
         </View>
       </ScrollView>
 
-      {/* Bottom Section */}
       <View style={styles.bottomBar}>
         <View style={styles.priceWrapper}>
           <Text style={styles.totalLabel}>Total price</Text>
-          <Text style={styles.totalPrice}>$25</Text>
+          <Text style={styles.totalPrice}>${product.price}</Text>
         </View>
-        <TouchableOpacity style={styles.addToCartBtn}>
+        <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddToCart}>
           <Text style={styles.addToCartText}>Add to cart</Text>
         </TouchableOpacity>
       </View>
-
     </SafeAreaView>
   );
 };
@@ -134,8 +151,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     resizeMode: 'cover',
     marginBottom: 20,
-    paddingLeft:10,
-    paddingRight:10
   },
   content: {
     paddingHorizontal: 20,
@@ -165,9 +180,6 @@ const styles = StyleSheet.create({
   reviewCount: {
     color: '#999',
   },
-  reviewLink: {
-    color: '#EB6F4E',
-  },
   description: {
     fontSize: 14,
     color: '#444',
@@ -177,31 +189,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#777',
     marginBottom: 20,
-  },
-  sizeOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 20,
-    borderRadius: 40,
-  },
-  sizeButton: {
-    borderColor: '#888',
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-  },
-  selectedSizeButton: {
-    backgroundColor: '#F6CEC8',
-    borderColor: '#F6CEC8',
-  },
-  sizeText: {
-    color: '#444',
-  },
-  selectedSizeText: {
-    color: '#fff',
-    fontWeight: '500',
   },
   extraContainer: {
     flexDirection: 'row',
