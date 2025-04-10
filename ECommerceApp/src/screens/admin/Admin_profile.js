@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { TOKEN, get_orders } from "../../postman_routes/constants";
+import { get_orders } from "../../postman_routes/constants";
 
 export default function Admin_Profile() {
   const [orderStats, setOrderStats] = useState({
@@ -15,11 +22,18 @@ export default function Admin_Profile() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    axios
-      .get(get_orders, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
-      })
-      .then((res) => {
+    const fetchOrders = async () => {
+      try {
+        const token = await AsyncStorage.getItem("TOKEN");
+        if (!token) {
+          console.error("No token found in AsyncStorage");
+          return;
+        }
+
+        const res = await axios.get(get_orders, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         const orders = res.data.orders || [];
         const counts = { pending: 0, completed: 0, canceled: 0 };
         orders.forEach((order) => {
@@ -28,10 +42,12 @@ export default function Admin_Profile() {
           else if (order.status === "canceled") counts.canceled++;
         });
         setOrderStats(counts);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching orders:", err.message);
-      });
+      }
+    };
+
+    fetchOrders();
   }, []);
 
   return (
@@ -42,22 +58,21 @@ export default function Admin_Profile() {
       </View>
 
       {/* Cards */}
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("PendingOrders")}>
         <Text style={styles.cardTitle}>Pending Orders</Text>
         <Text style={styles.cardNumber}>{orderStats.pending}</Text>
-      </View>
+      </TouchableOpacity>
 
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("PastOrders")}>
         <Text style={styles.cardTitle}>Past Orders</Text>
         <Text style={styles.cardNumber}>{orderStats.completed}</Text>
-      </View>
+      </TouchableOpacity>
 
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("CanceledOrders")}>
         <Text style={styles.cardTitle}>Canceled Orders</Text>
         <Text style={styles.cardNumber}>{orderStats.canceled}</Text>
-      </View>
+      </TouchableOpacity>
 
-      {/* Admin actions */}
       <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate("Create_product")}>
         <Text style={styles.actionText}>Add product...</Text>
         <Icon name="add-circle-outline" size={24} color="#F6CEC8" />
@@ -72,6 +87,7 @@ export default function Admin_Profile() {
         <Text style={styles.actionText}>Modify product...</Text>
         <Icon name="create-outline" size={24} color="#F6CEC8" />
       </TouchableOpacity>
+
     </ScrollView>
   );
 }
@@ -91,7 +107,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
-
   },
   card: {
     backgroundColor: "#F1F4FF",
