@@ -1,33 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Image, FlatList, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  FlatList,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get_categories, get_products } from '../postman_routes/constants';
 
 const Home = ({ navigation }) => {
   const [bestSelling, setBestSelling] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJidXJjaWFnYWVkc29uQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NDI0NDkxMiwiZXhwIjoxNzQ0MjQ4NTEyfQ.pnqFkinLZpPmke4ct5DBUbinJSXHuAiQleRmSbcKHxM';
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productRes = await axios.get('http://192.168.1.72:8081/esb/products', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const categoryRes = await axios.get('http://192.168.1.72:8081/esb/categories', {
-          headers: { Authorization: `Bearer ${token}` }
+        const token = await AsyncStorage.getItem('TOKEN');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+
+        const productRes = await axios.get(get_products, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Obtener 4 productos aleatorios
+        const categoryRes = await axios.get(get_categories, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         const shuffled = productRes.data.products.sort(() => 0.5 - Math.random());
         const selected = shuffled.slice(0, 4);
 
         setBestSelling(selected);
         setCategories(categoryRes.data.categories);
       } catch (error) {
-        console.error(error);
+        console.error('Error loading Home data:', error.message);
       } finally {
         setLoading(false);
       }
