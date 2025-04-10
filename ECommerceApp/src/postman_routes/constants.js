@@ -1,6 +1,9 @@
 
 //Nota solo va a jalar en i pc hasta que este la ruta de railway
 
+export const login= "http://192.168.1.16:8081/esb/users/login";
+
+
 //Contante de get_products
 export const get_products = "http://192.168.1.16:8081/esb/products";
 //
