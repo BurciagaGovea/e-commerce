@@ -12,9 +12,10 @@ import {
   Alert,
 } from "react-native";
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/Ionicons";
 import { Picker } from "@react-native-picker/picker";
-import { TOKEN, create_product, get_categories } from "../../postman_routes/constants";
+import { create_product, get_categories } from "../../postman_routes/constants";
 
 export default function Create_Product() {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ export default function Create_Product() {
   });
 
   const [categories, setCategories] = useState([]);
-
+  const [token, setToken] = useState(null);
   const navigation = useNavigation();
 
   const handleChange = (key, value) => {
@@ -42,7 +43,6 @@ export default function Create_Product() {
 
     if (!result.canceled) {
       const file = result.assets[0];
-
       const validTypes = ["image/jpeg", "image/png"];
       if (!validTypes.includes(file.mimeType)) {
         Alert.alert("Tipo inválido", "Solo se permiten imágenes JPEG o PNG");
@@ -61,26 +61,34 @@ export default function Create_Product() {
   };
 
   useEffect(() => {
-    axios
-      .get(get_categories, {
-        headers: {
-          Authorization: `Bearer ${TOKEN}`,
-        },
-      })
-      .then((res) => setCategories(res.data.categories))
-      .catch((err) => {
-        console.error("Error fetching categories:", err.message);
-      });
+    const loadTokenAndCategories = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('TOKEN');
+        if (!storedToken) {
+          Alert.alert("Error", "Token no encontrado");
+          return;
+        }
+        setToken(storedToken);
+        const res = await axios.get(get_categories, {
+          headers: { Authorization: `Bearer ${storedToken}` },
+        });
+        setCategories(res.data.categories);
+      } catch (err) {
+        console.error("Error al cargar categorías:", err.message);
+      }
+    };
+
+    loadTokenAndCategories();
   }, []);
 
   const handleSubmit = () => {
     const { name, price, description, category, image } = formData;
-  
+
     if (!name || !price || !description || !category || !image) {
       Alert.alert("Error", "Todos los campos son obligatorios.");
       return;
     }
-  
+
     Alert.alert(
       "Confirmar creación",
       "¿Estás seguro de que deseas crear este producto?",
@@ -100,11 +108,11 @@ export default function Create_Product() {
               type: image.type,
               name: image.name,
             });
-  
+
             try {
               await axios.post(create_product, data, {
                 headers: {
-                  Authorization: `Bearer ${TOKEN}`,
+                  Authorization: `Bearer ${token}`,
                   "Content-Type": "multipart/form-data",
                 },
               });
@@ -119,12 +127,11 @@ export default function Create_Product() {
       ]
     );
   };
-  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("Admin_menu")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Admin_profile")}>
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Product</Text>
@@ -227,7 +234,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   image: {
-    resizeMode:'cover',
+    resizeMode: 'cover',
     width: "100%",
     height: 200,
     borderRadius: 15,
@@ -281,8 +288,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: "center",
     marginTop: 30,
-    width:250,
-    alignSelf:'center',
+    width: 250,
+    alignSelf: 'center',
   },
   buttonText: {
     fontSize: 16,

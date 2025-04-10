@@ -10,7 +10,8 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { TOKEN, get_clients, get_orders, get_products, order_details } from '../../postman_routes/constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get_clients, get_orders, get_products, order_details } from '../../postman_routes/constants';
 
 export default function Past_orders() {
   const navigation = useNavigation();
@@ -20,14 +21,22 @@ export default function Past_orders() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderDetails, setOrderDetails] = useState([]);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const storedToken = await AsyncStorage.getItem('TOKEN');
+        if (!storedToken) {
+          console.error('No se encontró el token.');
+          return;
+        }
+        setToken(storedToken);
+
         const [ordersRes, clientsRes, productsRes] = await Promise.all([
-          axios.get(get_orders, { headers: { Authorization: `Bearer ${TOKEN}` } }),
-          axios.get(get_clients, { headers: { Authorization: `Bearer ${TOKEN}` } }),
-          axios.get(get_products, { headers: { Authorization: `Bearer ${TOKEN}` } })
+          axios.get(get_orders, { headers: { Authorization: `Bearer ${storedToken}` } }),
+          axios.get(get_clients, { headers: { Authorization: `Bearer ${storedToken}` } }),
+          axios.get(get_products, { headers: { Authorization: `Bearer ${storedToken}` } })
         ]);
 
         setOrders(ordersRes.data.orders.filter(order => order.status === 'completed'));
@@ -37,6 +46,7 @@ export default function Past_orders() {
         console.error('Error fetching data:', err.message);
       }
     };
+
     fetchData();
   }, []);
 
@@ -52,8 +62,8 @@ export default function Past_orders() {
 
   const openOrderModal = async (orderId) => {
     try {
-      const res = await axios.get(order_details+orderId, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
+      const res = await axios.get(order_details + orderId, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       setSelectedOrder(res.data.order);
       setOrderDetails(res.data.orderDetails);

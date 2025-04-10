@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
   Text,
@@ -12,9 +13,7 @@ import {
 } from "react-native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/Ionicons";
-import { TOKEN, get_categories, post_category } from "../../postman_routes/constants";
-
-
+import { get_categories, post_category } from "../../postman_routes/constants";
 
 export default function Create_Category() {
   const [formData, setFormData] = useState({
@@ -30,12 +29,22 @@ export default function Create_Category() {
   };
 
   useEffect(() => {
-    axios
-      .get(get_categories, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
-      })
-      .then((res) => setCategories(res.data.categories))
-      .catch((err) => console.error("Error fetching categories:", err.message));
+    const fetchCategories = async () => {
+      try {
+        const token = await AsyncStorage.getItem("TOKEN");
+        if (!token) return;
+
+        const res = await axios.get(get_categories, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setCategories(res.data.categories);
+      } catch (err) {
+        console.error("Error fetching categories:", err.message);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   const handleSubmit = () => {
@@ -46,42 +55,42 @@ export default function Create_Category() {
       return;
     }
 
-    Alert.alert(
-      "Confirmar creación",
-      "¿Estás seguro de que deseas crear esta categoría?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Sí, crear",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await axios.post(
-                post_category,
-                { name, description },
-                {
-                  headers: {
-                    Authorization: `Bearer ${TOKEN}`,
-                    "Content-Type": "application/json",
-                  },
-                }
-              );
-              Alert.alert("Éxito", "Categoría creada correctamente");
-              navigation.navigate("Admin_menu");
-            } catch (err) {
-              console.error(err.response?.data || err.message);
-              Alert.alert("Error", "No se pudo crear la categoría.");
-            }
-          },
+    Alert.alert("Confirmar creación", "¿Estás seguro de que deseas crear esta categoría?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Sí, crear",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const token = await AsyncStorage.getItem("TOKEN");
+            if (!token) return;
+
+            await axios.post(
+              post_category,
+              { name, description },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+
+            Alert.alert("Éxito", "Categoría creada correctamente");
+            navigation.navigate("Admin_profile");
+          } catch (err) {
+            console.error(err.response?.data || err.message);
+            Alert.alert("Error", "No se pudo crear la categoría.");
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("Admin_menu")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Admin_profile")}>
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Category</Text>
@@ -204,15 +213,12 @@ const styles = StyleSheet.create({
     marginTop: 30,
     width: 250,
     alignSelf: "center",
-    // Sombra para iOS
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    // Sombra para Android
     elevation: 5,
   },
-  
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
