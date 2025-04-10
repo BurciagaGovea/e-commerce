@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { login } from '../postman_routes/constants';
+
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -21,22 +23,28 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
+    //http://192.168.1.16:8081/esb/users/login
+  
     try {
-      const res = await axios.post('http://192.168.1.16:8081/esb/users/login', {
+      const res = await axios.post(login, {
         email,
         password,
       });
-
+  
       const token = res.data.token;
+  
+      console.log('🔐 TOKEN recibido:\n', token); // 👈 Este es el que copiarás a jwt.io
+  
       await AsyncStorage.setItem('TOKEN', token);
-
+  
       Alert.alert('Bienvenido', res.data.message);
-      navigation.navigate('Home'); // o el stack/tab que quieras mostrar tras login
+      navigation.navigate('Home');
     } catch (err) {
       console.error(err.response?.data || err.message);
       Alert.alert('Error', 'Credenciales incorrectas o fallo en el servidor.');
     }
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>
