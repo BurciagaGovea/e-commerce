@@ -8,7 +8,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { jwtDecode } from 'jwt-decode';
-import { get_categories, get_products } from '../postman_routes/const';
+import { get_categories, get_products } from '../postman_routes/constants';
 
 
 
