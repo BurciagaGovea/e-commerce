@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { jwtDecode } from 'jwt-decode';
 import { Picker } from '@react-native-picker/picker';
-import { get_products, get_categories, get_clients, get_cat_byid, add_to_cart } from '../postman_routes/const_docker';
+import { get_products, get_categories, get_clients, get_cat_byid, add_to_cart } from '../postman_routes/constants';
 
 export default function SearchPage({ navigation }) {
   const [allProducts, setAllProducts] = useState([]);

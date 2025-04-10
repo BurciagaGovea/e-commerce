@@ -7,7 +7,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { decode as atob } from 'base-64';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
-import { get_clients, get_orders, order_details, get_product_by_id, pay_order } from '../postman_routes/const_docker';
+import { get_clients, get_orders, order_details, get_product_by_id, pay_order } from '../postman_routes/constants';
 
 const parseJwt = (token) => {
   try {

@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as atob } from 'base-64';
 import axios from 'axios';
 import moment from 'moment'; // Para mostrar "1 week ago", "18 hr", etc.
+import { get_orders } from '../postman_routes/constants';
+
 
 export default function OrdersScreen({ navigation }) {
   const [orders, setOrders] = useState([]);
@@ -36,7 +38,7 @@ export default function OrdersScreen({ navigation }) {
         const decoded = parseJwt(token);
         const userId = decoded?.id || decoded?.sub || decoded?.user_id;
 
-        const res = await axios.get('http://192.168.1.72:8081/esb/orders', {
+        const res = await axios.get(get_orders, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

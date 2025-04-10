@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { decode as atob } from 'base-64';
-import { get_userbyid } from '../postman_routes/const';
+import { get_userbyid } from '../postman_routes/constants';
 
 // 🔐 Función para decodificar JWT
 function parseJwt(token) {
