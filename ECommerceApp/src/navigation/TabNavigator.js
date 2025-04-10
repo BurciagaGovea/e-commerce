@@ -49,41 +49,44 @@ const TabNavigator = () => {
 
   return (
     <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ color, focused }) => {
-        let iconName;
-  
-        if (route.name === "HomeTab") {
-          iconName = focused ? "home" : "home-outline";
-        } else if (route.name === "Search") {
-          iconName = focused ? "search" : "search-outline";
-        } else if (route.name === "Profile") {
-          iconName = focused ? "person" : "person-outline";
-        } else if (route.name === "Cart") {
-          iconName = focused ? "cart" : "cart-outline";
-        }
-  
-        return <Ionicons name={iconName} size={22} color={color} />;
-      },
-      tabBarStyle: {
-        height: 80,
-        backgroundColor: "#fff",
-        borderTopWidth: 0.5,
-      },
-      tabBarLabelStyle: {
-        fontSize: 12,
-        marginBottom: 15,
-      },
-      tabBarActiveTintColor: "#D19793",
-      tabBarInactiveTintColor: "#000",
-      headerShown: false,
-    })}
-  >
-    <Tab.Screen name="HomeTab" component={HomeStackScreen} />
-    <Tab.Screen name="Search" component={SearchPage} />
-    <Tab.Screen name="Profile" component={ProfileStackScreen} />
-    <Tab.Screen name="Cart" component={Cart} />
-  </Tab.Navigator>
+      screenOptions={({ route }) => ({
+        tabBarHideOnKeyboard: true,
+        tabBarIcon: ({ color, focused }) => {
+          let iconName;
+
+          if (route.name === "HomeTab") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Search") {
+            iconName = focused ? "search" : "search-outline";
+          } else if (route.name === "Cart") {
+            iconName = focused ? "cart" : "cart-outline";
+          } else if (route.name === "Profile") {
+            iconName = focused ? "person" : "person-outline";
+          }
+
+          return <Ionicons name={iconName} size={22} color={color} />;
+        },
+        tabBarStyle: {
+          height: 80,
+          backgroundColor: "#fff",
+          borderTopWidth: 0.5,
+          position: "absolute", 
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+        },
+        tabBarActiveTintColor: "#D19793",
+        tabBarInactiveTintColor: "#000",
+        headerShown: false,
+      })}
+    >
+
+      <Tab.Screen name="HomeTab" component={HomeStackScreen} />
+      <Tab.Screen name="Search" component={SearchPage} />
+      <Tab.Screen name="Cart" component={Cart} />
+      <Tab.Screen name="Profile" component={ProfileStackScreen} />
+    </Tab.Navigator>
+
   
   );
 };

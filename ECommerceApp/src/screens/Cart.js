@@ -150,9 +150,15 @@ const CartScreen = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#D88E88" style={{ marginTop: 30 }} />
       ) : !hasPendingOrder ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 18, color: '#999' }}>No tienes carritos activos.</Text>
+
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+          <Text style={{ fontSize: 18, color: '#999', marginBottom: 20 }}>
+            No products in the cart
+          </Text>
+          <Image source={require("../media/happy_bread.png")} style={styles.emptyImage} />
         </View>
+
+
       ) : (
         <>
           <FlatList
@@ -182,6 +188,7 @@ const CartScreen = () => {
 const styles = StyleSheet.create({
   container: { paddingTop: 20, flex: 1, backgroundColor: '#F9F9F9' },
   header: { padding: 20, flexDirection: 'row', justifyContent: 'space-between' },
+  Image:{resizeMode: "contain", width: 200},
   headerText: { fontSize: 24, fontWeight: '600' },
   itemCard: {
     backgroundColor: '#fff', borderRadius: 20, padding: 14, marginBottom: 16,
@@ -206,6 +213,13 @@ const styles = StyleSheet.create({
     paddingVertical: 14, alignItems: 'center', marginBottom: 14,
   },
   orderText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  emptyImage: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+    marginTop: 10,
+  },
+  
 });
 
 export default CartScreen;
