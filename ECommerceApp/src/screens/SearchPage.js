@@ -203,7 +203,7 @@ export default function SearchPage({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20, backgroundColor: '#F9F9F9', paddingTop: 50 },
+  container: { flex: 1, paddingHorizontal: 20, backgroundColor: '#F9F9F9', paddingTop: 50, paddingBottom: 100},
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   headerTitle: { fontSize: 24, fontWeight: '600' },
   searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', borderRadius: 20, paddingVertical: 8, marginBottom: 10 },

@@ -168,7 +168,8 @@ const CartScreen = () => {
             contentContainerStyle={{ paddingHorizontal: 20 }}
           />
 
-          <View style={styles.summary}>
+          <View style={[styles.summary, { marginBottom: 90 }]}>
+
             <Text style={styles.lineItem}>
               Sub Total <Text style={styles.lineValue}>${subtotal.toFixed(2)}</Text>
             </Text>

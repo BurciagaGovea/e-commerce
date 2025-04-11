@@ -63,7 +63,10 @@ const Home = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={{ flex: 1, padding: 20, backgroundColor: '#fff', marginTop: 20 }}>
+  <ScrollView
+    style={{ flex: 1, padding: 20, backgroundColor: '#fff', marginTop: 20 }}
+    contentContainerStyle={{ paddingBottom: 100 }}>
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <View>
           <Text style={{ fontSize: 24, fontWeight: '600', marginTop: 15 }}>Hi there!</Text>
